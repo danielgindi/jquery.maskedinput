@@ -47,8 +47,8 @@
      * @property {MaskedInput~PartType} [type] - Type of the field
      * @property {String|undefined} [name] - Name for this field
      * @property {String|undefined} [ariaLabel] - An ARIA accessibility label
-     * @property {String|undefined} [text] - Text for this field if it's a LABEL
-     * @property {String|function(match)|undefined} [placeholder] - Placeholder for the field
+     * @property {String|function(match):String|undefined} [text] - Text for this field if it's a LABEL
+     * @property {String|function(match):String|undefined} [placeholder] - Placeholder for the field
      * @property {Number|function(match):Number} [length] - Length of the field
      * @property {Number|function(match):Number} [maxLength] - Maximum length of the field
      * @property {Number|function(match):Number|undefined} [numericMin] - Minimum numeric value
@@ -484,6 +484,7 @@
                             type: callFunctor(patterns.type, that, match[0]),
                             name: callFunctor(patterns.name, that, match[0]),
                             ariaLabel: callFunctor(patterns.ariaLabel, that, match[0]),
+                            text: callFunctor(patterns.text, that, match[0]),
                             placeholder: callFunctor(patterns.placeholder, that, match[0]),
                             length: callFunctor(patterns.length, that, match[0]) || 0,
                             maxLength: callFunctor(patterns.maxLength, that, match[0]) || 0,
