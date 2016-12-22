@@ -1,5 +1,5 @@
 /*!
- * jquery.maskedinput 1.0.0
+ * jquery.maskedinput 1.0.1
  * git://github.com/danielgindi/jquery.maskedinput.git
  */
 
@@ -1574,7 +1574,7 @@
             hour: 'Hour',
             minutes: 'Minutes',
             seconds: 'Seconds',
-            meridiem: 'Am/Pm'
+            ampm: 'Am/Pm'
         }
     };
 
@@ -1602,7 +1602,7 @@
             },
             postProcess: function (value) {
                 value = parseInt(value);
-                if (value < 1 || value > 12) return undefined;
+                if (value < 1 || value > 31) return undefined;
                 return value + '';
             },
             ariaLabel: function (match) {
@@ -1800,7 +1800,7 @@
             // TT - AM/PM
             pattern: /\btt?|TT?\b/,
             type: MaskedInput.PartType.TEXT,
-            name: 'meridiem',
+            name: 'ampm',
             length: function (match) {
                 return maxArrayStringLength(this.option('dateLocale')[match]);
             },
@@ -1811,7 +1811,7 @@
                 return this.option('dateLocale')[match][0];
             },
             ariaLabel: function (match) {
-                return (this.option('dateLocale').aria || {}).meridiem;
+                return (this.option('dateLocale').aria || {}).ampm;
             }
         }
     };

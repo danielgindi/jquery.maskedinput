@@ -1,5 +1,5 @@
 /*!
- * jquery.maskedinput 1.0.0
+ * jquery.maskedinput 1.0.1
  * git://github.com/danielgindi/jquery.maskedinput.git
  */
 

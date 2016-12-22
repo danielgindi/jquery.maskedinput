@@ -1,5 +1,5 @@
 /*!
- * jquery.maskedinput 1.0.0
+ * jquery.maskedinput 1.0.1
  * git://github.com/danielgindi/jquery.maskedinput.git
  */
 
@@ -87,7 +87,7 @@
             },
             postProcess: function (value) {
                 value = parseInt(value);
-                if (value < 1 || value > 12) return undefined;
+                if (value < 1 || value > 31) return undefined;
                 return value + '';
             },
             ariaLabel: function (match) {
