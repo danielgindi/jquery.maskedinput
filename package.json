@@ -24,6 +24,8 @@
     "jquery": ">= 1.0.0"
   },
   "devDependencies": {
+    "babel-plugin-transform-es2015-block-scoping": "^6.21.0",
+    "babel-plugin-transform-es2015-constants": "^6.1.4",
     "babel-plugin-transform-merge-sibling-variables": "^6.8.0",
     "babel-plugin-transform-property-literals": "^6.8.0",
     "babel-plugin-transform-remove-debugger": "^6.8.0",

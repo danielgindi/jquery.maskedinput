@@ -54,6 +54,8 @@ module.exports = function( grunt ) {
                         'transform-property-literals'
                         , 'transform-remove-debugger'
                         , 'transform-merge-sibling-variables'
+                        , 'transform-es2015-constants'
+                        , 'transform-es2015-block-scoping'
                     ]
                     , compact: false
                 }
