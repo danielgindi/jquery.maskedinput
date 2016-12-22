@@ -1,5 +1,5 @@
 /*!
- * jquery.maskedinput 1.0.2
+ * jquery.maskedinput 1.0.3
  * git://github.com/danielgindi/jquery.maskedinput.git
  */
 
@@ -29,14 +29,14 @@
      * @property {String[]} [TT]
      */
 
-    const repeatChar = function (char, length) {
+    var repeatChar = function (char, length) {
         var out = '';
         for (var i = 0; i < length; i++) {
             out += char;
         }
         return out;
     },
-          maxArrayStringLength = function (array) {
+        maxArrayStringLength = function (array) {
         var slen = 0;
         for (var i = 0; i < array.length; i++) {
             if (array[i].length > slen) {
@@ -45,7 +45,7 @@
         }
         return slen;
     },
-          EnglishDateLocale = /** @type {MaskedInput~DateLocale} */{
+        EnglishDateLocale = /** @type {MaskedInput~DateLocale} */{
         MMM: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         MMMM: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
         t: ['a', 'p'],
@@ -68,7 +68,7 @@
 
     MaskedInput.defaults.dateLocale = EnglishDateLocale;
 
-    const DATE_PATTERN_MAP = {
+    var DATE_PATTERN_MAP = {
         // d - 1-31
         // dd - 01-31
         dd: {

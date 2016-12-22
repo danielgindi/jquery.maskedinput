@@ -1,5 +1,5 @@
 /*!
- * jquery.maskedinput 1.0.2
+ * jquery.maskedinput 1.0.3
  * git://github.com/danielgindi/jquery.maskedinput.git
  */
 
@@ -27,7 +27,207 @@
     },
         defaults = /** @type {MaskedInput.Options} */{
         patterns: {}
-    };
+    },
+        execRegexWithLeftovers = function (regex, input, onMatch, onLeftover) {
+
+        var match,
+            lastIndex = 0;
+        regex.lastIndex = 0;
+        while (match = regex.exec(input)) {
+
+            // Add skipped raw text
+            if (match.index > lastIndex) {
+                onLeftover(input.substring(lastIndex, match.index));
+            }
+
+            onMatch(match);
+
+            lastIndex = regex.lastIndex;
+        }
+
+        // Add remaining text
+        if (input.length > lastIndex) {
+            onLeftover(input.substring(lastIndex, input.length));
+        }
+    },
+        getSelectionRange = function (el) {
+        var begin,
+            end,
+            direction = 'none';
+
+        if (el.setSelectionRange) {
+
+            begin = el.selectionStart;
+            end = el.selectionEnd;
+            direction = el.selectionDirection;
+        } else if (document.selection && document.selection.createRange) {
+
+            var range = document.selection.createRange();
+            begin = 0 - range.duplicate().moveStart('character', -10000);
+            end = begin + range.text.length;
+        }
+
+        return {
+            begin: begin,
+            end: end,
+            direction: direction
+        };
+    },
+        setSelectionRange = function (el, begin, end, direction) {
+
+        if (typeof arguments[1] === 'object' && 'begin' in arguments[1]) {
+            begin = arguments[1].begin;
+            end = arguments[1].end;
+            direction = arguments[1].direction;
+        }
+
+        if (direction === undefined) {
+            if (typeof arguments[2] === 'string' && (arguments[2] === 'forward' || arguments[2] === 'backward' || arguments[2] === 'none')) {
+                direction = arguments[2];
+                end = null;
+            }
+        }
+
+        end = end == null ? begin : end;
+
+        if (el.setSelectionRange) {
+            el.setSelectionRange(begin, end, direction);
+        } else {
+            if (el.createTextRange) {
+                var range = el.createTextRange();
+                range.collapse(true);
+                range.moveEnd('character', end);
+                range.moveStart('character', begin);
+                range.select();
+            }
+        }
+    },
+        repeatChar = function (char, length) {
+        var out = '';
+        for (var i = 0; i < length; i++) {
+            out += char;
+        }
+        return out;
+    },
+        findMatchInArray = function (options, term, closestChoice, returnFullMatch, caseSensitive) {
+
+        var i,
+            option,
+            optionLower,
+            termLower = caseSensitive ? term : term.toLowerCase();
+
+
+        if (closestChoice) {
+            // Search for a partial option or partial content match, return the longest match found, or `false`
+
+            var maxMatchLength = 0,
+                maxMatchOption,
+                maxMatchFullOption;
+
+
+            for (i = 0; i < options.length; i++) {
+                option = options[i];
+                optionLower = caseSensitive ? option : option.toLowerCase();
+
+                for (var clen = Math.min(option.length, 1); clen <= term.length; clen++) {
+                    if (option.length >= clen && optionLower.substr(0, clen) === termLower.substr(0, clen)) {
+                        if (clen > maxMatchLength) {
+                            maxMatchLength = clen;
+                            maxMatchOption = option.substr(0, clen);
+                            maxMatchFullOption = option;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            }
+
+            return returnFullMatch ? maxMatchFullOption : maxMatchOption;
+        } else {
+
+            // Search for an exact match or option "starts with" the content - all case insensitive
+            for (i = 0; i < options.length; i++) {
+                option = options[i];
+                optionLower = caseSensitive ? option : option.toLowerCase();
+
+                if (option.length >= term.length && optionLower.substr(0, term.length) === termLower) return returnFullMatch ? option : true;
+            }
+        }
+    },
+        escapeRegExp = function (str) {
+        return str.replace(/[\-\[\]\/{}()*+?.\\\^$|]/g, '\\$&');
+    },
+        closestToOffset = function (elements, offset) {
+        var x = offset.left,
+            y = offset.top,
+            bestMatch = null,
+            minDistance = null;
+
+        for (var i = 0; i < elements.length; i++) {
+            var el = elements[i],
+                $el = $(el),
+                elOffset = $el.offset();
+
+
+            elOffset.right = elOffset.left + $el.outerWidth();
+            elOffset.bottom = elOffset.top + $el.outerHeight();
+
+            if (x >= elOffset.left && x <= elOffset.right && y >= elOffset.top && y <= elOffset.bottom) {
+                return el;
+            }
+
+            var offsets = [[elOffset.left, elOffset.top], [elOffset.right, elOffset.top], [elOffset.left, elOffset.bottom], [elOffset.right, elOffset.bottom]];
+
+            for (var o = 0; o < 4; o++) {
+                var offset = offsets[o],
+                    dx = offset[0] - x,
+                    dy = offset[1] - y,
+                    distance = Math.sqrt(dx * dx + dy * dy);
+
+
+                if (minDistance == null || distance < minDistance) {
+                    minDistance = distance;
+                    bestMatch = el;
+                }
+            }
+        };
+
+        return bestMatch;
+    },
+        callFunctor = function (functor, bind, arg1) {
+        return typeof functor === 'function' ? functor.apply(bind, Array.prototype.slice.call(arguments, 2)) : functor;
+    },
+        inputBackbufferCssProps = ['font-family', 'font-size', 'font-weight', 'font-size', 'letter-spacing', 'text-transform', 'word-spacing', 'text-indent', 'box-sizing', 'padding-left', 'padding-right'],
+        hasComputedStyle = document.defaultView && document.defaultView.getComputedStyle,
+        getPreciseContentWidth = function (el) {
+
+        var style = hasComputedStyle ? document.defaultView.getComputedStyle(el) : el.currentStyle,
+            width = parseFloat(style['width']) || 0;
+
+
+        if (style['boxSizing'] === 'border-box') {
+            width -= parseFloat(style['paddingLeft']) || 0;
+            width -= parseFloat(style['paddingRight']) || 0;
+            width -= parseFloat(style['borderLeftWidth']) || 0;
+            width -= parseFloat(style['borderRightWidth']) || 0;
+
+            if (width < 0) {
+                width = 0;
+            }
+        }
+
+        return width;
+    },
+        FOCUSABLES = ['a[href]', 'area[href]', 'input:not([disabled])', 'select:not([disabled])', 'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'object', 'embed', '*[tabindex]', '*[contenteditable]'],
+        FOCUSABLE_SELECTOR = FOCUSABLES.join(','),
+        TABBABLE_SELECTOR = FOCUSABLES.map(function (x) {
+        return x + ':not([tabindex=-1])';
+    }).join(','),
+        KEY_ENTER = 13,
+        KEY_ARROW_UP = 38,
+        KEY_ARROW_DOWN = 40,
+        KEY_ARROW_LEFT = 37,
+        KEY_ARROW_RIGHT = 39;
 
     /**
      * @typedef {Object} MaskedInput~Part
@@ -78,176 +278,6 @@
      * @property {Object<String, MaskedInput~Pattern>} [patterns] - Additional patterns to recognize in the format
      */
 
-    const execRegexWithLeftovers = function (regex, input, onMatch, onLeftover) {
-
-        var match,
-            lastIndex = 0;
-        regex.lastIndex = 0;
-        while (match = regex.exec(input)) {
-
-            // Add skipped raw text
-            if (match.index > lastIndex) {
-                onLeftover(input.substring(lastIndex, match.index));
-            }
-
-            onMatch(match);
-
-            lastIndex = regex.lastIndex;
-        }
-
-        // Add remaining text
-        if (input.length > lastIndex) {
-            onLeftover(input.substring(lastIndex, input.length));
-        }
-    },
-          getSelectionRange = function (el) {
-        var begin,
-            end,
-            direction = 'none';
-
-        if (el.setSelectionRange) {
-
-            begin = el.selectionStart;
-            end = el.selectionEnd;
-            direction = el.selectionDirection;
-        } else if (document.selection && document.selection.createRange) {
-
-            var range = document.selection.createRange();
-            begin = 0 - range.duplicate().moveStart('character', -10000);
-            end = begin + range.text.length;
-        }
-
-        return {
-            begin: begin,
-            end: end,
-            direction: direction
-        };
-    },
-          setSelectionRange = function (el, begin, end, direction) {
-
-        if (typeof arguments[1] === 'object' && 'begin' in arguments[1]) {
-            begin = arguments[1].begin;
-            end = arguments[1].end;
-            direction = arguments[1].direction;
-        }
-
-        if (direction === undefined) {
-            if (typeof arguments[2] === 'string' && (arguments[2] === 'forward' || arguments[2] === 'backward' || arguments[2] === 'none')) {
-                direction = arguments[2];
-                end = null;
-            }
-        }
-
-        end = end == null ? begin : end;
-
-        if (el.setSelectionRange) {
-            el.setSelectionRange(begin, end, direction);
-        } else {
-            if (el.createTextRange) {
-                var range = el.createTextRange();
-                range.collapse(true);
-                range.moveEnd('character', end);
-                range.moveStart('character', begin);
-                range.select();
-            }
-        }
-    },
-          repeatChar = function (char, length) {
-        var out = '';
-        for (var i = 0; i < length; i++) {
-            out += char;
-        }
-        return out;
-    },
-          findMatchInArray = function (options, term, closestChoice, returnFullMatch, caseSensitive) {
-
-        var i,
-            option,
-            optionLower,
-            termLower = caseSensitive ? term : term.toLowerCase();
-
-
-        if (closestChoice) {
-            // Search for a partial option or partial content match, return the longest match found, or `false`
-
-            var maxMatchLength = 0,
-                maxMatchOption,
-                maxMatchFullOption;
-
-
-            for (i = 0; i < options.length; i++) {
-                option = options[i];
-                optionLower = caseSensitive ? option : option.toLowerCase();
-
-                for (var clen = Math.min(option.length, 1); clen <= term.length; clen++) {
-                    if (option.length >= clen && optionLower.substr(0, clen) === termLower.substr(0, clen)) {
-                        if (clen > maxMatchLength) {
-                            maxMatchLength = clen;
-                            maxMatchOption = option.substr(0, clen);
-                            maxMatchFullOption = option;
-                        }
-                    } else {
-                        break;
-                    }
-                }
-            }
-
-            return returnFullMatch ? maxMatchFullOption : maxMatchOption;
-        } else {
-
-            // Search for an exact match or option "starts with" the content - all case insensitive
-            for (i = 0; i < options.length; i++) {
-                option = options[i];
-                optionLower = caseSensitive ? option : option.toLowerCase();
-
-                if (option.length >= term.length && optionLower.substr(0, term.length) === termLower) return returnFullMatch ? option : true;
-            }
-        }
-    },
-          escapeRegExp = function (str) {
-        return str.replace(/[\-\[\]\/{}()*+?.\\\^$|]/g, '\\$&');
-    },
-          closestToOffset = function (elements, offset) {
-        var x = offset.left,
-            y = offset.top,
-            bestMatch = null,
-            minDistance = null;
-
-        for (var i = 0; i < elements.length; i++) {
-            var el = elements[i],
-                $el = $(el),
-                elOffset = $el.offset();
-
-
-            elOffset.right = elOffset.left + $el.outerWidth();
-            elOffset.bottom = elOffset.top + $el.outerHeight();
-
-            if (x >= elOffset.left && x <= elOffset.right && y >= elOffset.top && y <= elOffset.bottom) {
-                return el;
-            }
-
-            var offsets = [[elOffset.left, elOffset.top], [elOffset.right, elOffset.top], [elOffset.left, elOffset.bottom], [elOffset.right, elOffset.bottom]];
-
-            for (var o = 0; o < 4; o++) {
-                var offset = offsets[o],
-                    dx = offset[0] - x,
-                    dy = offset[1] - y,
-                    distance = Math.sqrt(dx * dx + dy * dy);
-
-
-                if (minDistance == null || distance < minDistance) {
-                    minDistance = distance;
-                    bestMatch = el;
-                }
-            }
-        };
-
-        return bestMatch;
-    },
-          callFunctor = function (functor, bind, arg1) {
-        return typeof functor === 'function' ? functor.apply(bind, Array.prototype.slice.call(arguments, 2)) : functor;
-    };
-
     /**
      * Get the selection range in an element
      * @param {HTMLInputElement} el
@@ -288,45 +318,12 @@
      */
 
 
-    var inputBackbufferCssProps = ['font-family', 'font-size', 'font-weight', 'font-size', 'letter-spacing', 'text-transform', 'word-spacing', 'text-indent', 'box-sizing', 'padding-left', 'padding-right'],
-        hasComputedStyle = document.defaultView && document.defaultView.getComputedStyle,
-        getPreciseContentWidth = function (el) {
-
-        var style = hasComputedStyle ? document.defaultView.getComputedStyle(el) : el.currentStyle,
-            width = parseFloat(style['width']) || 0;
-
-
-        if (style['boxSizing'] === 'border-box') {
-            width -= parseFloat(style['paddingLeft']) || 0;
-            width -= parseFloat(style['paddingRight']) || 0;
-            width -= parseFloat(style['borderLeftWidth']) || 0;
-            width -= parseFloat(style['borderRightWidth']) || 0;
-
-            if (width < 0) {
-                width = 0;
-            }
-        }
-
-        return width;
-    };
-
     /**
      * Gets the precise content width for an element, with fractions
      * @param {Element} el
      * @returns {Number}
      */
 
-
-    const FOCUSABLES = ['a[href]', 'area[href]', 'input:not([disabled])', 'select:not([disabled])', 'textarea:not([disabled])', 'button:not([disabled])', 'iframe', 'object', 'embed', '*[tabindex]', '*[contenteditable]'],
-          FOCUSABLE_SELECTOR = FOCUSABLES.join(','),
-          TABBABLE_SELECTOR = FOCUSABLES.map(function (x) {
-        return x + ':not([tabindex=-1])';
-    }).join(','),
-          KEY_ENTER = 13,
-          KEY_ARROW_UP = 38,
-          KEY_ARROW_DOWN = 40,
-          KEY_ARROW_LEFT = 37,
-          KEY_ARROW_RIGHT = 39;
 
     /** @class MaskedInput */
     function MaskedInput() {
