@@ -123,7 +123,7 @@ var input = new MaskedInput({
             hour: 'Hour',
             minutes: 'Minutes',
             seconds: 'Seconds',
-            ampm: 'Am/Pm'
+            meridiem: 'Am/Pm'
         }
     }
 });
