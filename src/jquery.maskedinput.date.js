@@ -92,7 +92,7 @@
             },
             postProcess: function (value) {
                 value = parseInt(value);
-                if (value < 1 || value > 12) return undefined;
+                if (value < 1 || value > 31) return undefined;
                 return value + '';
             },
             ariaLabel: function (match) {
