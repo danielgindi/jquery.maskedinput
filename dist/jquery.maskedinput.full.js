@@ -1,5 +1,5 @@
 /*!
- * jquery.maskedinput 1.0.1
+ * jquery.maskedinput 1.0.2
  * git://github.com/danielgindi/jquery.maskedinput.git
  */
 
@@ -207,6 +207,43 @@
           escapeRegExp = function (str) {
         return str.replace(/[\-\[\]\/{}()*+?.\\\^$|]/g, '\\$&');
     },
+          closestToOffset = function (elements, offset) {
+        var x = offset.left,
+            y = offset.top,
+            bestMatch = null,
+            minDistance = null;
+
+        for (var i = 0; i < elements.length; i++) {
+            var el = elements[i],
+                $el = $(el),
+                elOffset = $el.offset();
+
+
+            elOffset.right = elOffset.left + $el.outerWidth();
+            elOffset.bottom = elOffset.top + $el.outerHeight();
+
+            if (x >= elOffset.left && x <= elOffset.right && y >= elOffset.top && y <= elOffset.bottom) {
+                return el;
+            }
+
+            var offsets = [[elOffset.left, elOffset.top], [elOffset.right, elOffset.top], [elOffset.left, elOffset.bottom], [elOffset.right, elOffset.bottom]];
+
+            for (var o = 0; o < 4; o++) {
+                var offset = offsets[o],
+                    dx = offset[0] - x,
+                    dy = offset[1] - y,
+                    distance = Math.sqrt(dx * dx + dy * dy);
+
+
+                if (minDistance == null || distance < minDistance) {
+                    minDistance = distance;
+                    bestMatch = el;
+                }
+            }
+        };
+
+        return bestMatch;
+    },
           callFunctor = function (functor, bind, arg1) {
         return typeof functor === 'function' ? functor.apply(bind, Array.prototype.slice.call(arguments, 2)) : functor;
     };
@@ -241,6 +278,13 @@
      * Regex escape
      * @param {String} str
      * @returns {XML|void|string}
+     */
+
+    /**
+     * Search for closest element to a specified point
+     * @param {HTMLElement[]} elements
+     * @param {{left: Number, top: Number }} offset
+     * @returns {HTMLElement|null}
      */
 
 
@@ -331,6 +375,21 @@
 
         // Create backbuffer for input
         p.$inputBackBuffer = $('<span aria-hidden="true" style="position:absolute;z-index:-1;left:0;top:-9999px;white-space:pre;"/>');
+
+        // Hook up click event
+        $el.on('click', function (event) {
+            if (event.target !== this && $(event.target).is(FOCUSABLE_SELECTOR)) return;
+
+            var offset = $(this).offset();
+            offset.left += event.offsetX;
+            offset.top += event.offsetY;
+
+            var el = closestToOffset($el.children(FOCUSABLE_SELECTOR), offset);
+
+            if (el) {
+                el.focus();
+            }
+        });
 
         that.render();
 
