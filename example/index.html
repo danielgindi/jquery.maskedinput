@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Example page for jquery.maskedinput</title>
+    <link rel="stylesheet" href="example.css" />
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="../src/jquery.maskedinput.core.js"></script>
+    <script src="../src/jquery.maskedinput.date.js"></script>
+    <style>
+
+        input {
+            /*font-family: inherit;
+            font-size: 1em;*/
+        }
+
+        .masked-input {
+            display: inline-block;
+            border: 1px solid #555;
+            padding: 4px;
+        }
+
+        .masked-input input {
+            border: 0;
+            padding: 0;
+        }
+
+        .ip-field input[data-name=ip] {
+            text-align: center;
+            min-width: 3em;
+        }
+
+        .ip-field span {
+            margin: 0 0.5em;
+        }
+
+        .monospace, .monospace * {
+            font-family: monospace;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>jquery.maskedinput examples</h1>
+
+    <section>
+        For more information, and full API: <a href="https://github.com/danielgindi/jquery.maskedinput">https://github.com/danielgindi/jquery.maskedinput</a>
+    </section>
+
+    <table>
+        <tr>
+            <th>Date field #1 (<sup>Date + 12-hour time</sup>):</th>
+            <td id="date1-field-cell"></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>Date field #2 (<sup>Month name</sup>):</th>
+            <td id="date2-field-cell"></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>Date field #3 (<sup>Short month name, Monospace</sup>):</th>
+            <td id="date3-field-cell"></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>Date field #4 (<sup>Hybrid</sup>):</th>
+            <td id="date4-field-cell"></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>IPv4 field (<sup>Windows style</sup>):</th>
+            <td id="ipv4-field-cell"></td>
+            <td></td>
+        </tr>
+        <tr>
+            <th>IPv4 with port field:</th>
+            <td id="ipv4port-field-cell"></td>
+            <td></td>
+        </tr>
+    </table>
+</div>
+
+<script>
+
+    var date1Mask = new MaskedInput({
+        format: 'dd/MM/yyyy hh:mm tt'
+    });
+    date1Mask.$el.addClass('date-field').appendTo('#date1-field-cell');
+    date1Mask
+        .fieldOption('hours_12', 'required', false)
+        .fieldOption('minutes', 'required', false)
+        .fieldOption('ampm', 'required', false)
+        .resize();
+
+    var date2Mask = new MaskedInput({
+        format: 'MMMM dd yyyy HH:mm'
+    });
+    date2Mask.$el.addClass('date-field').appendTo('#date2-field-cell');
+    date2Mask
+        .fieldOption('hours', 'required', false)
+        .fieldOption('minutes', 'required', false)
+        .resize();
+
+    var date3Mask = new MaskedInput({
+        format: 'dd MMM yy HH:mm'
+    });
+    date3Mask.$el.addClass('date-field monospace').appendTo('#date3-field-cell');
+    date3Mask
+        .fieldOption('hours', 'required', false)
+        .fieldOption('minutes', 'required', false)
+        .resize();
+
+    var date4Mask = new MaskedInput({
+        format: '##:times "times a day on" dd MMM yy'
+    });
+    date4Mask.$el.appendTo('#date4-field-cell');
+    date4Mask.resize();
+
+    var ipv4Mask = new MaskedInput({
+        format: '000:ip.000:ip.000:ip.000:ip'
+    });
+    ipv4Mask.$el.addClass('ip-field').appendTo('#ipv4-field-cell');
+    ipv4Mask
+        .fieldOption('ip', {
+            'type': MaskedInput.PartType.NUMBER,
+            'placeholder': '',
+            'validator': function (content, part) {
+                content = content.replace(/[^-0-9]/g, ''); // Numeric values
+
+                if (part.length > 0 && content.length > part.length) {
+                    content = content.substr(0, part.length);
+                }
+
+                if (content) {
+                    if (parseInt(content, 10) > 255) {
+                        return '255';
+                    }
+                    if (parseInt(content, 10) < 0) {
+                        return '0';
+                    }
+                }
+
+                if (!content) {
+                    return false; // Do not accept empty value
+                }
+
+                return content;
+            },
+            'padding': false,
+            'wholeNumber': true
+        })
+        .resize();
+
+    var ipv4portMask = new MaskedInput({
+        format: '###:ip.###:ip.###:ip.###:ip : #####:port'
+    });
+    ipv4portMask.$el.addClass('ip-port-field').appendTo('#ipv4port-field-cell');
+    ipv4portMask
+        .fieldOption('ip', {
+            'type': MaskedInput.PartType.NUMBER,
+            'numericMin': 0,
+            'numericMax': 255,
+            'wholeNumber': true,
+            'padding': false
+        })
+        .fieldOption('port', {
+            'numericMin': 0,
+            'numericMax': 65535,
+            'padding': false
+        })
+        .resize();
+
+    $(document).on('change', '.masked-input', function () {
+        $(this).closest('td').next('td').text('Output value: ' + ($(this).data('control').val() || ''));
+    });
+
+</script>
+
+
+</body>
+</html>
