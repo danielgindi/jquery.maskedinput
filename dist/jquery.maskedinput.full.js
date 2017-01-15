@@ -1,5 +1,5 @@
 /*!
- * jquery.maskedinput 1.0.3
+ * jquery.maskedinput 1.0.4
  * git://github.com/danielgindi/jquery.maskedinput.git
  */
 
@@ -1790,8 +1790,8 @@
             }
         },
         hh: {
-            // h - 0-12
-            // hh - 00-12
+            // h - 1-12
+            // hh - 01-12
             pattern: /\bhh?\b/,
             type: MaskedInput.PartType.NUMBER,
             name: 'hours_12',
@@ -1799,8 +1799,8 @@
             placeholder: function (match) {
                 return repeatChar('h', match.length);
             },
-            numericMin: 0,
-            numericMax: 11,
+            numericMin: 1,
+            numericMax: 12,
             wholeNumber: true,
             padding: function (match) {
                 return match.length;
