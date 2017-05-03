@@ -1,5 +1,5 @@
 /*!
- * jquery.maskedinput 1.0.4
+ * maskedinput.js 1.0.5
  * git://github.com/danielgindi/jquery.maskedinput.git
  */
 
@@ -1541,6 +1541,17 @@
                 if (part.type !== PartType.LABEL) {
 
                     that._fieldValue(part.el, value);
+                }
+            }
+
+            // Allow clearing the field
+            if (!matches.length && (newValue === '' || newValue === null)) {
+                for (pi = 0; pi < p.parsed.length; pi++) {
+                    part = p.parsed[pi];
+
+                    if (part.type !== PartType.LABEL) {
+                        that._fieldValue(part.el, '');
+                    }
                 }
             }
         }
