@@ -1663,6 +1663,18 @@
                 }
 
             }
+
+            // Allow clearing the field
+            if (!matches.length && (newValue === '' || newValue === null)) {
+                for (pi = 0; pi < p.parsed.length; pi++) {
+                    part = p.parsed[pi];
+
+                    if (part.type !== PartType.LABEL) {
+                        that._fieldValue(part.el, '');
+                    }
+
+                }
+            }
         }
 
         return that;
