@@ -1,6 +1,8 @@
 (function () {
     'use strict';
 
+    const MaskedInput = this.MaskedInput;
+    
     /**
      * @name MaskedInput~Options
      * @property {MaskedInput~DateLocale} [dateLocale] - Date localization map

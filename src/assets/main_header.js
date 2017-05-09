@@ -7,4 +7,3 @@
         root.MaskedInput = factory(root.jQuery);
     }
 }(this, function ($) {
-    var module;

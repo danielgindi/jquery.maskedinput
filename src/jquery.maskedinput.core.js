@@ -1696,10 +1696,6 @@
      */
     MaskedInput.defaults = defaults;
     
-    if (typeof module === 'object') {
-        module.exports = MaskedInput;
-    } else {
-        this.MaskedInput = MaskedInput;
-    }
+    this.MaskedInput = MaskedInput;
     
 }).call(this);

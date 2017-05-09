@@ -7,4 +7,3 @@
         /*root.MaskedInput =*/ factory(root.MaskedInput);
     }
 }(this, function (MaskedInput) {
-    var module;
