@@ -37,12 +37,30 @@ module.exports = function( grunt ) {
         },
 
         concat: {
-            dist: {
+            dist_full: {
                 src: [
-                    'src/jquery.maskedinput.core.js'
+                    'src/assets/main_header.js'
+                    , 'src/jquery.maskedinput.core.js'
                     , 'src/jquery.maskedinput.date.js'
+                    , 'src/assets/main_footer.js'
                 ]
                 , dest: 'dist/jquery.maskedinput.full.js'
+            },
+            dist_core: {
+                src: [
+                    'src/assets/main_header.js'
+                    , 'src/jquery.maskedinput.core.js'
+                    , 'src/assets/main_footer.js'
+                ]
+                , dest: 'dist/jquery.maskedinput.core.js'
+            },
+            dist_date: {
+                src: [
+                    'src/assets/date_header.js'
+                    , 'src/jquery.maskedinput.date.js'
+                    , 'src/assets/date_footer.js'
+                ]
+                , dest: 'dist/jquery.maskedinput.date.js'
             }
         },
 
@@ -60,8 +78,8 @@ module.exports = function( grunt ) {
                     , compact: false
                 }
                 , files: {
-                    'dist/jquery.maskedinput.core.js': 'src/jquery.maskedinput.core.js'
-                    , 'dist/jquery.maskedinput.date.js': 'src/jquery.maskedinput.date.js'
+                    'dist/jquery.maskedinput.core.js': 'dist/jquery.maskedinput.core.js'
+                    , 'dist/jquery.maskedinput.date.js': 'dist/jquery.maskedinput.date.js'
                     , 'dist/jquery.maskedinput.full.js': 'dist/jquery.maskedinput.full.js'
                 }
             }
@@ -101,7 +119,9 @@ module.exports = function( grunt ) {
 
     grunt.registerTask( 'build', [
         'remove:dist', 'mkdir:dist',
-        'concat:dist',
+        'concat:dist_full',
+        'concat:dist_core',
+        'concat:dist_date',
         'babel:dist', 'uglify:dist',
         'header:dist'
     ] );

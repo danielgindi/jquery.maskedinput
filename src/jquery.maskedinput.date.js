@@ -1,12 +1,4 @@
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        define(['jquery.maskedinput'], factory);
-    } else if (typeof exports === 'object') {
-        module.exports = factory(require('jquery.maskedinput'));
-    } else {
-        factory(root.MaskedInput);
-    }
-}(this, function (MaskedInput) {
+(function () {
     'use strict';
 
     /**
@@ -307,5 +299,5 @@
     };
 
     MaskedInput.patternAddons.push(DATE_PATTERN_MAP);
-
-}));
+        
+}).call(this);
