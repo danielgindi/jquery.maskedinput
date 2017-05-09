@@ -1,5 +1,5 @@
 /*!
- * maskedinput.js 1.0.6
+ * maskedinput.js 1.0.7
  * git://github.com/danielgindi/jquery.maskedinput.git
  */
 
@@ -12,7 +12,6 @@
         root.MaskedInput = factory(root.jQuery);
     }
 })(this, function ($) {
-    var module;
 
     (function () {
         'use strict';
@@ -1586,12 +1585,8 @@
          */
         MaskedInput.defaults = defaults;
 
-        if (typeof module === 'object') {
-            module.exports = MaskedInput;
-        } else {
-            this.MaskedInput = MaskedInput;
-        }
+        this.MaskedInput = MaskedInput;
     }).call(this);
 
-    return module.exports;
+    return this.MaskedInput;
 });

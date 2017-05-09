@@ -1,5 +1,5 @@
 /*!
- * maskedinput.js 1.0.6
+ * maskedinput.js 1.0.7
  * git://github.com/danielgindi/jquery.maskedinput.git
  */
 
@@ -12,7 +12,6 @@
         root.MaskedInput = factory(root.jQuery);
     }
 })(this, function ($) {
-    var module;
 
     (function () {
         'use strict';
@@ -1586,31 +1585,13 @@
          */
         MaskedInput.defaults = defaults;
 
-        if (typeof module === 'object') {
-            module.exports = MaskedInput;
-        } else {
-            this.MaskedInput = MaskedInput;
-        }
+        this.MaskedInput = MaskedInput;
     }).call(this);
     (function () {
         'use strict';
 
-        /**
-         * @name MaskedInput~Options
-         * @property {MaskedInput~DateLocale} [dateLocale] - Date localization map
-         */
-
-        /**
-         * @typedef {Object} MaskedInput~DateLocale
-         * @property {String[]} [MMM]
-         * @property {String[]} [MMMM]
-         * @property {String[]} [t]
-         * @property {String[]} [tt]
-         * @property {String[]} [T]
-         * @property {String[]} [TT]
-         */
-
-        var repeatChar = function (char, length) {
+        var MaskedInput = this.MaskedInput,
+            repeatChar = function (char, length) {
             var out = '';
             for (var i = 0; i < length; i++) {
                 out += char;
@@ -1643,6 +1624,21 @@
                 ampm: 'Am/Pm'
             }
         };
+
+        /**
+         * @name MaskedInput~Options
+         * @property {MaskedInput~DateLocale} [dateLocale] - Date localization map
+         */
+
+        /**
+         * @typedef {Object} MaskedInput~DateLocale
+         * @property {String[]} [MMM]
+         * @property {String[]} [MMMM]
+         * @property {String[]} [t]
+         * @property {String[]} [tt]
+         * @property {String[]} [T]
+         * @property {String[]} [TT]
+         */
 
         //noinspection UnnecessaryLocalVariableJS
 
@@ -1885,5 +1881,5 @@
         MaskedInput.patternAddons.push(DATE_PATTERN_MAP);
     }).call(this);
 
-    return module.exports;
+    return this.MaskedInput;
 });
