@@ -24,23 +24,20 @@
     "jquery": ">= 1.0.0"
   },
   "devDependencies": {
-    "babel-plugin-transform-es2015-block-scoping": "^6.21.0",
-    "babel-plugin-transform-es2015-constants": "^6.1.4",
-    "babel-plugin-transform-merge-sibling-variables": "^6.8.0",
-    "babel-plugin-transform-property-literals": "^6.8.0",
-    "babel-plugin-transform-remove-debugger": "^6.8.0",
-    "grunt": "^1.0.1",
-    "grunt-babel": "^6.0.0",
+    "@babel/core": "^7.2.0",
+    "@babel/plugin-transform-modules-umd": "^7.2.0",
+    "@babel/preset-env": "^7.2.0",
+    "grunt": "^1.0.3",
+    "grunt-babel": "^8.0.0",
     "grunt-contrib-concat": "^1.0.1",
-    "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-uglify": "^2.0.0",
     "grunt-header": "^1.1.0",
     "grunt-mkdir": "^1.0.0",
     "grunt-remove": "^0.1.0",
     "grunt-replace": "^1.0.1",
+    "grunt-terser": "^0.1.0",
     "jsonminify": "^0.4.1"
   },
   "scripts": {
-    "postinstall": "grunt build"
+    "build": "grunt build"
   }
 }
