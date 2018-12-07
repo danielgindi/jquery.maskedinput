@@ -1630,7 +1630,7 @@ class MaskedInput {
 
         p.enabled = enabled;
 
-        this.$el.toggleClass('disabled', !enabled);
+        this.$el[0].attr('disabled', enabled ? null : true);
         this.$el.find('input').prop('disabled', !enabled);
 
         return this;
