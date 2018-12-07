@@ -376,6 +376,7 @@
         /** This is for encapsulating private data */
         const p = that.p = {};
 
+        p.enabled = true;
         p.inputs = [];
 
         /** @public */
@@ -643,7 +644,7 @@
         let $input;
 
         if (isNewInput) {
-            $input = $('<input>').data('part', part);
+            $input = $('<input>').data('part', part).prop('disabled', !p.enabled);
             input = $input[0];
         } else {
             $input = $(input);
@@ -1667,6 +1668,52 @@
         }
 
         return that;
+    };
+
+    /**
+     * Set input enabled/disabled mode
+     * @public
+     * @param {Boolean} [enabled=true]
+     * @returns {MaskedInput}
+     */
+    MaskedInput.prototype.enable = function (enabled) {
+        const p = this.p;
+
+        enabled = !!enabled || enabled === undefined;
+
+        p.enabled = enabled;
+
+        this.$el.toggleClass('disabled', !enabled);
+        this.$el.find('input').prop('disabled', !enabled);
+
+        return this;
+    };
+
+    /**
+     * Set input enabled/disabled mode
+     * @public
+     * @param {Boolean} [disabled=true]
+     * @returns {MaskedInput}
+     */
+    MaskedInput.prototype.disable = function (disabled) {
+        disabled = !!disabled || disabled === undefined;
+        return this.enable(!disabled);
+    };
+
+    /**
+     * @public
+     * @returns {Boolean} <code>true</code> if enabled
+     */
+    MaskedInput.prototype.isEnabled = function () {
+        return this.p.enabled;
+    };
+
+    /**
+     * @public
+     * @returns {Boolean} <code>true</code> if disabled
+     */
+    MaskedInput.prototype.isDisabled = function () {
+        return !this.p.enabled;
     };
 
     // Short version, compatible with jQuery's syntax
