@@ -19,16 +19,16 @@
      */
 
     const repeatChar = function (char, length) {
-        var out = '';
-        for (var i = 0; i < length; i++) {
+        let out = '';
+        for (let i = 0; i < length; i++) {
             out += char;
         }
         return out;
     };
 
     const maxArrayStringLength = function (array) {
-        var slen = 0;
-        for (var i = 0; i < array.length; i++) {
+        let slen = 0;
+        for (let i = 0; i < array.length; i++) {
             if (array[i].length > slen) {
                 slen = array[i].length;
             }
@@ -170,10 +170,10 @@
             postProcess: function (value, part) {
 
                 if (part.maxLength === 4) {
-                    var baseYear = Math.floor((new Date()).getFullYear() / 100) * 100;
-                    var nowYear = new Date().getFullYear();
+                    const baseYear = Math.floor((new Date()).getFullYear() / 100) * 100;
+                    const nowYear = new Date().getFullYear();
 
-                    var year = parseInt(value, 10);
+                    let year = parseInt(value, 10);
 
                     if (year < 100) {
                         year += baseYear;

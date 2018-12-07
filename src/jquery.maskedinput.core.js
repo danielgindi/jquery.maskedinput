@@ -1,12 +1,12 @@
 (function () {
     'use strict';
-    
+
     /**
      * @typedef {String} MaskedInput~PartType
      * @name MaskedInput~PartType
      * @enum {String}
      */
-    var PartType = {
+    const PartType = {
         /** @const */ NUMBER: 'number',
         /** @const */ TEXT: 'text',
         /** @const */ LABEL: 'label'
@@ -60,16 +60,15 @@
      * @property {String} [format] - Format to show
      * @property {Object<String, MaskedInput~Pattern>} [patterns] - Additional patterns to recognize in the format
      */
-
-    var defaults = /** @type {MaskedInput.Options} */ {
+    const defaults = /** @type {MaskedInput.Options} */ {
         patterns: {}
     };
 
     const execRegexWithLeftovers = function (regex, input, onMatch, onLeftover) {
 
-        var match, lastIndex = 0;
+        let match, lastIndex = 0;
         regex.lastIndex = 0;
-        while (match = regex.exec(input)) {
+        while ((match = regex.exec(input))) {
 
             // Add skipped raw text
             if (match.index > lastIndex) {
@@ -94,7 +93,7 @@
      * @returns {{begin: Number, end: Number, direction: 'forward'|'backward'|'none'|undefined}}
      */
     const getSelectionRange = function (el) {
-        var begin, end, direction = 'none';
+        let begin, end, direction = 'none';
 
         if (el.setSelectionRange) {
 
@@ -104,7 +103,7 @@
 
         } else if (document.selection && document.selection.createRange) {
 
-            var range = document.selection.createRange();
+            const range = document.selection.createRange();
             begin = 0 - range.duplicate().moveStart('character', -10000);
             end = begin + range.text.length;
         }
@@ -121,7 +120,7 @@
      * @param {HTMLInputElement} el
      * @param {Number|{begin: Number, end: Number, direction: 'forward'|'backward'|'none'|undefined}} begin
      * @param {Number?} end
-     * @param {String?} direction
+     * @param {('forward'|'backward'|'none')?} direction
      */
     const setSelectionRange = function (el, begin, end, direction) {
 
@@ -146,7 +145,7 @@
 
         } else {
             if (el.createTextRange) {
-                var range = el.createTextRange();
+                const range = el.createTextRange();
                 range.collapse(true);
                 range.moveEnd('character', end);
                 range.moveStart('character', begin);
@@ -157,8 +156,8 @@
     };
 
     const repeatChar = function (char, length) {
-        var out = '';
-        for (var i = 0; i < length; i++) {
+        let out = '';
+        for (let i = 0; i < length; i++) {
             out += char;
         }
         return out;
@@ -174,21 +173,21 @@
      */
     const findMatchInArray = function (options, term, closestChoice, returnFullMatch, caseSensitive) {
 
-        var i, option, optionLower;
-        var termLower = caseSensitive ? term : term.toLowerCase();
+        let i, option, optionLower;
+        const termLower = caseSensitive ? term : term.toLowerCase();
 
         if (closestChoice) {
             // Search for a partial option or partial content match, return the longest match found, or `false`
 
-            var maxMatchLength = 0;
-            var maxMatchOption;
-            var maxMatchFullOption;
+            let maxMatchLength = 0;
+            let maxMatchOption;
+            let maxMatchFullOption;
 
             for (i = 0; i < options.length; i++) {
                 option = options[i];
                 optionLower = caseSensitive ? option : option.toLowerCase();
 
-                for (var clen = Math.min(option.length, 1); clen <= term.length; clen++) {
+                for (let clen = Math.min(option.length, 1); clen <= term.length; clen++) {
                     if (option.length >= clen &&
                         optionLower.substr(0, clen) === termLower.substr(0, clen)) {
                         if (clen > maxMatchLength) {
@@ -233,15 +232,15 @@
      * @returns {HTMLElement|null}
      */
     const closestToOffset = function (elements, offset) {
-        var x = offset.left,
-            y = offset.top,
-            bestMatch = null,
+        const x = offset.left,
+            y = offset.top;
+        let bestMatch = null,
             minDistance = null;
-            
-        for (var i = 0; i < elements.length; i++) {
-            var el = elements[i], $el = $(el);
-            var elOffset = $el.offset();
-            
+
+        for (let i = 0; i < elements.length; i++) {
+            const el = elements[i], $el = $(el);
+            const elOffset = $el.offset();
+
             elOffset.right = elOffset.left + $el.outerWidth();
             elOffset.bottom = elOffset.top + $el.outerHeight();
             
@@ -251,26 +250,26 @@
             ) {
                 return el;
             }
-            
-            var offsets = [
+
+            const offsets = [
                 [elOffset.left, elOffset.top],
-                [elOffset.right, elOffset.top], 
-                [elOffset.left, elOffset.bottom], 
+                [elOffset.right, elOffset.top],
+                [elOffset.left, elOffset.bottom],
                 [elOffset.right, elOffset.bottom]
             ];
-            
-            for (var o = 0; o < 4; o++) {
-                var offset = offsets[o];
-                var dx = offset[0] - x;
-                var dy = offset[1] - y;
-                var distance = Math.sqrt((dx * dx) + (dy * dy));
-                
+
+            for (let o = 0; o < 4; o++) {
+                const offset = offsets[o];
+                const dx = offset[0] - x;
+                const dy = offset[1] - y;
+                const distance = Math.sqrt((dx * dx) + (dy * dy));
+
                 if (minDistance == null || distance < minDistance) {
                     minDistance = distance;
                     bestMatch = el;
                 }
             }
-        };
+        }
                 
         return bestMatch;
     };
@@ -281,7 +280,7 @@
             functor;
     };
 
-    var inputBackbufferCssProps = [
+    const inputBackbufferCssProps = [
         'font-family',
         'font-size',
         'font-weight',
@@ -295,17 +294,17 @@
         'padding-right'
     ];
 
-    var hasComputedStyle = document.defaultView && document.defaultView.getComputedStyle;
+    const hasComputedStyle = document.defaultView && document.defaultView.getComputedStyle;
 
     /**
      * Gets the precise content width for an element, with fractions
      * @param {Element} el
      * @returns {Number}
      */
-    var getPreciseContentWidth = function (el) {
+    const getPreciseContentWidth = function (el) {
 
-        var style = hasComputedStyle ? document.defaultView.getComputedStyle(el) : el.currentStyle;
-        var width = parseFloat(style['width']) || 0;
+        const style = hasComputedStyle ? document.defaultView.getComputedStyle(el) : el.currentStyle;
+        let width = parseFloat(style['width']) || 0;
 
         if (style['boxSizing'] === 'border-box') {
             width -= parseFloat(style['paddingLeft']) || 0;
@@ -362,12 +361,12 @@
      * @returns {MaskedInput}
      */
     MaskedInput.prototype.initialize = function (options) {
-        var that = this;
+        const that = this;
 
         /** @private */
-        var o = that.o = $.extend({}, MaskedInput.defaults, options);
+        const o = that.o = $.extend({}, MaskedInput.defaults, options);
 
-        var patterns = {};
+        let patterns = {};
         $.each(MaskedInput.patternAddons, function () {
             patterns = $.extend(patterns, this);
         });
@@ -375,12 +374,12 @@
         o.patterns = patterns;
 
         /** This is for encapsulating private data */
-        var p = that.p = {};
+        const p = that.p = {};
 
         p.inputs = [];
 
         /** @public */
-        var $el = that.$el = $('<div>').addClass(o.className || 'masked-input');
+        const $el = that.$el = $('<div>').addClass(o.className || 'masked-input');
 
         /** @public */
         that.el = that.$el[0];
@@ -400,13 +399,13 @@
         $el.on('click', function (event) {
             if (event.target !== this && 
                 $(event.target).is(FOCUSABLE_SELECTOR)) return;
-            
-            var offset = $(this).offset();
+
+            const offset = $(this).offset();
             offset.left += event.offsetX;
             offset.top += event.offsetY;
-            
-            var el = closestToOffset($el.children(FOCUSABLE_SELECTOR), offset);
-            
+
+            const el = closestToOffset($el.children(FOCUSABLE_SELECTOR), offset);
+
             if (el) {
                 el.focus();
             }
@@ -423,7 +422,7 @@
         return that;
     };
 
-    var FORMAT_REGEX = new RegExp(
+    const FORMAT_REGEX = new RegExp(
         '(0+(?::[a-zA-Z0-9_]+)?)' + /* numeric value, fixed length, with possible :name_123 */
         '|(#+(?::[a-zA-Z0-9_]+)?)' + /* numeric value, with possible :name_123 */
         '|((?:@+|\\*)(?::[a-zA-Z0-9_]+)?)' + /* text value with maximum or variable length, with possible :name_123 */
@@ -438,19 +437,19 @@
      * @returns {MaskedInput~Part[]}
      */
     MaskedInput.prototype._parseFormat = function (format) {
-        var that = this, o = that.o;
+        const that = this, o = that.o;
 
-        var parsedFormat = [];
+        let parsedFormat = [];
 
         // Loop through basic format matches
 
         execRegexWithLeftovers(FORMAT_REGEX, format, function onMatch(match) {
 
-            var numericMatch = match[1] || match[2];
-            var textMatch = match[3];
-            var quotedMatch = match[4];
+            const numericMatch = match[1] || match[2];
+            const textMatch = match[3];
+            const quotedMatch = match[4];
 
-            var i, part;
+            let i, part;
 
             if (numericMatch) {
                 part = { type: PartType.NUMBER };
@@ -487,7 +486,7 @@
                 parsedFormat.push(part);
             }
             else if (quotedMatch) {
-                var labelText = quotedMatch.substr(1, quotedMatch.length - 2);
+                const labelText = quotedMatch.substr(1, quotedMatch.length - 2);
                 part = {
                     type: PartType.LABEL,
                     text: labelText,
@@ -498,9 +497,9 @@
 
         }, function onLeftover(leftover) {
 
-            var leftoverParts = [];
+            const leftoverParts = [];
 
-            var part = {
+            const part = {
                 type: PartType.LABEL,
                 text: leftover,
                 length: leftover.length
@@ -509,7 +508,7 @@
 
             $.each(o.patterns, function (key, patterns) {
 
-                var regex = new RegExp(
+                const regex = new RegExp(
                     patterns.pattern instanceof RegExp ?
                         patterns.pattern.source :
                         patterns.pattern,
@@ -518,15 +517,15 @@
                         'g'
                 );
 
-                for (var fpos = 0; fpos < leftoverParts.length; fpos++) {
-                    var fpart = leftoverParts[fpos];
+                for (let fpos = 0; fpos < leftoverParts.length; fpos++) {
+                    const fpart = leftoverParts[fpos];
                     if (fpart.type !== PartType.LABEL) continue;
 
-                    var newParts = [];
+                    const newParts = [];
 
                     execRegexWithLeftovers(regex, fpart.text, function onMatch(match) {
 
-                        var validator;
+                        let validator;
                         if (patterns.validator instanceof RegExp || typeof patterns.validator === 'function') {
                             validator = patterns.validator;
                         } else if (typeof patterns.validator === 'string') {
@@ -536,7 +535,7 @@
                         }
 
                         // Translate the part
-                        var part = {
+                        const part = {
                             type: callFunctor(patterns.type, that, match[0]),
                             name: callFunctor(patterns.name, that, match[0]),
                             ariaLabel: callFunctor(patterns.ariaLabel, that, match[0]),
@@ -559,7 +558,7 @@
                         newParts.push(part);
 
                     }, function onLeftover(leftover) {
-                        var part = {
+                        const part = {
                             type: PartType.LABEL,
                             text: leftover,
                             length: leftover.length
@@ -584,32 +583,32 @@
     };
 
     MaskedInput.prototype.render = function () {
-        var that = this,
+        const that = this,
             o = that.o,
             p = that.p;
 
         that.$el.empty();
 
-        var inputs = [];
+        const inputs = [];
 
         $.each(p.parsed, function () {
-            var part = this;
+            const part = this;
 
             if (part.type === PartType.LABEL) {
-                var $el = that._renderText(part).appendTo(that.$el);
+                const $el = that._renderText(part).appendTo(that.$el);
                 part.$el = $el;
                 part.el = $el[0];
                 return;
             }
 
-            var $input = that._renderInput(part).appendTo(that.$el);
+            const $input = that._renderInput(part).appendTo(that.$el);
 
             part.$el = $input;
             part.el = $input[0];
 
             inputs.push($input);
 
-            if (part.name && parseInt(part.name, 10).toString() != part.name) {
+            if (part.name && parseInt(part.name, 10).toString() !== part.name) {
                 if (inputs.hasOwnProperty(part.name)) {
                     inputs[part.name] = (inputs[part.name] instanceof HTMLElement)
                         ? [inputs[part.name], part.el]
@@ -635,13 +634,13 @@
      * @returns {jQuery}
      */
     MaskedInput.prototype._renderInput = function (part, input) {
-        var that = this,
+        const that = this,
             o = that.o,
             p = that.p;
 
-        var isNewInput = !input;
+        const isNewInput = !input;
 
-        var $input;
+        let $input;
 
         if (isNewInput) {
             $input = $('<input>').data('part', part);
@@ -664,7 +663,7 @@
 
         if (part.length || part.maxLength || typeof part.placeholder === 'string') {
             //noinspection UnnecessaryLocalVariableJS
-            var placeholder = typeof part.placeholder === 'string'
+            const placeholder = typeof part.placeholder === 'string'
                 ? part.placeholder
                 : (part.placeholder === undefined || part.placeholder) ? repeatChar('_', part.length || part.maxLength) : '';
             input.placeholder = placeholder;
@@ -706,8 +705,7 @@
      * @returns {MaskedInput}
      */
     MaskedInput.prototype._syncInputSize = function (input, alwaysConsiderPlaceholder, fallbackText) {
-        var that = this,
-            o = that.o,
+        const that = this,
             p = that.p;
 
         if (alwaysConsiderPlaceholder === undefined) {
@@ -718,13 +716,13 @@
             fallbackText = 'A';
         }
 
-        var $input = $(input), $backBuffer = p.$inputBackBuffer;
+        const $input = $(input), $backBuffer = p.$inputBackBuffer;
 
         /** @type {HTMLInputElement} */
-        var inputEl = $input[0];
+        const inputEl = $input[0];
 
         fallbackText = fallbackText == null ? '' : (fallbackText + '');
-        var value = inputEl.value || inputEl.placeholder || fallbackText;
+        const value = inputEl.value || inputEl.placeholder || fallbackText;
 
         // Introduce backbuffer to DOM
         $backBuffer
@@ -733,13 +731,13 @@
             .appendTo(that.$el);
 
         // Measure these
-        var backBufferWidth = getPreciseContentWidth($backBuffer[0]) + 1 /* caret width */;
-        var currentWidth = getPreciseContentWidth(inputEl);
+        let backBufferWidth = getPreciseContentWidth($backBuffer[0]) + 1 /* caret width */;
+        const currentWidth = getPreciseContentWidth(inputEl);
 
         if (alwaysConsiderPlaceholder &&
             inputEl.value &&
             inputEl.placeholder &&
-            inputEl.placeholder != inputEl.value) {
+            inputEl.placeholder !== inputEl.value) {
             $backBuffer.text(inputEl.placeholder);
             backBufferWidth = Math.max(
                 backBufferWidth,
@@ -748,7 +746,7 @@
         }
 
         // Compare
-        if (backBufferWidth != currentWidth) {
+        if (backBufferWidth !== currentWidth) {
             // Update if needed
             $input.css('width', backBufferWidth + 'px');
         }
@@ -786,11 +784,12 @@
      * @returns {MaskedInput}
      */
     MaskedInput.prototype._handleInput = function (event, input, part) {
-        var that = this,
+        const that = this,
             o = that.o,
             p = that.p;
 
-        var content = input.value, validatedContent;
+        const content = input.value;
+        let validatedContent;
 
         // Update input if acceptable
         validatedContent = that._validateContent(content, part);
@@ -830,32 +829,33 @@
      * @returns {MaskedInput}
      */
     MaskedInput.prototype._handleKeydown = function (event, input, part) {
-        var that = this,
+        const that = this,
             o = that.o,
             p = that.p;
 
         if (input.readOnly) return that;
 
-        var keycode = event.which;
-        var triggerChange = false;
+        const keycode = event.which;
+        let triggerChange = false;
 
-        var contentBefore = input.value, validatedContent;
+        const contentBefore = input.value;
+        let validatedContent;
 
         // Handle UP/DOWN arrows for next/previous value
 
         if (keycode === KEY_ARROW_UP || keycode === KEY_ARROW_DOWN) {
 
-            var nextValue, tryToUpdate = false;
+            let nextValue, tryToUpdate = false;
 
-            var minLen = part.maxLength ?
+            const minLen = part.maxLength ?
                 Math.max(1, Math.min(part.length || 0, part.maxLength || 1)) :
                 (part.length || 1);
-            var maxLen = Math.max(part.length || 0, part.maxLength || 0);
+            const maxLen = Math.max(part.length || 0, part.maxLength || 0);
 
             if (part.type === PartType.TEXT && part.options) {
 
-                var fullMatch = findMatchInArray(part.options, contentBefore, true, true, false);
-                var index = part.options.indexOf(fullMatch);
+                const fullMatch = findMatchInArray(part.options, contentBefore, true, true, false);
+                let index = part.options.indexOf(fullMatch);
 
                 if (index === -1) {
                     if (keycode === KEY_ARROW_UP) {
@@ -897,7 +897,7 @@
                     typeof part.numericMin === 'number') {
 
                     // Start with minimum number
-                    nextValue = part.numericMin == 0 ? 1 : part.numericMin;
+                    nextValue = part.numericMin === 0 ? 1 : part.numericMin;
 
                 } else {
                     /// Up or down
@@ -933,7 +933,7 @@
             }
 
             // Update input if acceptable
-            if (tryToUpdate && nextValue != contentBefore) {
+            if (tryToUpdate && nextValue !== contentBefore) {
                 validatedContent = that._validateContent(nextValue, part);
                 if (validatedContent === true) {
                     validatedContent = nextValue;
@@ -955,7 +955,7 @@
 
         // Handle LEFT/RIGHT arrows, basically when we are at the end/beginning of an input
         if (keycode === KEY_ARROW_LEFT || keycode === KEY_ARROW_RIGHT) {
-            var isRtl = $(input).css('direction') === 'rtl';
+            const isRtl = $(input).css('direction') === 'rtl';
 
             if ((!isRtl && keycode === KEY_ARROW_LEFT) || (isRtl && keycode === KEY_ARROW_RIGHT)) {
                 if (getSelectionRange(input).begin === 0) {
@@ -980,14 +980,14 @@
      * @returns {MaskedInput}
      */
     MaskedInput.prototype._handleKeypress = function (event, input, part) {
-        var that = this,
+        const that = this,
             o = that.o,
             p = that.p;
 
         if (input.readOnly) return that;
 
-        var keycode = event.which;
-        var pos = getSelectionRange(input);
+        const keycode = event.which;
+        const pos = getSelectionRange(input);
 
         if (event.ctrlKey || event.altKey || event.metaKey ||
             !keycode ||
@@ -995,17 +995,17 @@
 
         event.preventDefault();
 
-        var triggerChange = false;
-        var moveToNextField = false;
+        let triggerChange = false;
+        let moveToNextField = false;
 
-        var pressedChar = event.key || String.fromCharCode(keycode);
+        const pressedChar = event.key || String.fromCharCode(keycode);
 
-        var contentBefore = input.value;
-        var contentAfter = contentBefore.substr(0, pos.begin) +
+        const contentBefore = input.value;
+        let contentAfter = contentBefore.substr(0, pos.begin) +
             pressedChar +
             contentBefore.substr(pos.end);
 
-        var validatedContent = that._validateContent(contentAfter, part);
+        const validatedContent = that._validateContent(contentAfter, part);
         if (validatedContent === false) return that; // Not validated, ignore keypress
 
         if (typeof validatedContent === 'string') {
@@ -1014,7 +1014,7 @@
 
         if (contentAfter !== contentBefore || contentAfter.substr(pos.begin, 1) === pressedChar) {
 
-            var newPos = { };
+            const newPos = {};
 
             // Set caret at new position
 
@@ -1027,8 +1027,8 @@
             // Show rest of only choice found
             if (part.type === PartType.TEXT && part.options) {
 
-                var fullMatch = findMatchInArray(part.options, contentAfter, false, true, false);
-                if (fullMatch !== undefined && fullMatch.length != contentAfter.length) {
+                const fullMatch = findMatchInArray(part.options, contentAfter, false, true, false);
+                if (fullMatch !== undefined && fullMatch.length !== contentAfter.length) {
                     // Choose a selection range for the rest of the match
                     newPos.begin = contentAfter.length;
                     newPos.end = fullMatch.length;
@@ -1113,14 +1113,14 @@
                 return part.validator.test(content);
             }
 
-            var ret = part.validator.call(this, content, part);
+            let ret = part.validator.call(this, content, part);
             if (ret == null) {
                 ret = false;
             }
             return ret;
         }
 
-        var maxLen = Math.max(part.length || 0, part.maxLength || 0);
+        const maxLen = Math.max(part.length || 0, part.maxLength || 0);
 
         // Test numeric
         if (part.type === PartType.NUMBER) {
@@ -1143,7 +1143,7 @@
             // It's important to do this AFTER trimming the value,
             // To allow inserting character in the middle.
             if (typeof part.numericMin === 'number' || typeof part.numericMax === 'number') {
-                var parsedValue = parseFloat(content);
+                let parsedValue = parseFloat(content);
                 if (!isNaN(parsedValue)) {
                     parsedValue = Math.max(
                         Math.min(
@@ -1169,7 +1169,7 @@
         // Test textual
         if (part.type === PartType.TEXT) {
             if (part.options) {
-                var match = findMatchInArray(part.options, content, true, false, false);
+                const match = findMatchInArray(part.options, content, true, false, false);
                 if (match !== undefined) {
                     return match;
                 }
@@ -1187,7 +1187,7 @@
      * @returns {MaskedInput}
      */
     MaskedInput.prototype.resize = function () {
-        var that = this,
+        const that = this,
             o = that.o,
             p = that.p;
 
@@ -1205,11 +1205,11 @@
      * @returns {HTMLInputElement}
      */
     MaskedInput.prototype.field = function (index) {
-        var that = this,
+        const that = this,
             o = that.o,
             p = that.p;
 
-        var input = p.inputs[index];
+        const input = p.inputs[index];
 
         if (!input) return undefined;
 
@@ -1222,24 +1222,24 @@
      * @returns {string}
      */
     MaskedInput.prototype._valuePattern = function () {
-        var that = this,
+        const that = this,
             o = that.o,
             p = that.p;
 
-        var pattern = '';
+        let pattern = '';
 
         $.each(p.parsed, function () {
-            var part = this;
-            var group = '';
+            const part = this;
+            let group = '';
 
-            var minLen = part.maxLength ?
+            const minLen = part.maxLength ?
                 Math.max(1, Math.min(part.length || 0, part.maxLength || 1)) :
                 (part.length || 1);
-            var maxLen = Math.max(part.length || 0, part.maxLength || 0);
+            const maxLen = Math.max(part.length || 0, part.maxLength || 0);
 
             if (part.type === PartType.TEXT) {
                 if (part.options) {
-                    for (var i = 0; i < part.options.length; i++) {
+                    for (let i = 0; i < part.options.length; i++) {
                         if (i > 0) {
                             group += '|';
                         }
@@ -1285,26 +1285,24 @@
     };
 
     /**
-     * Retrieve an input element's value
+     * Retrieve or set an input element's value
      * @private
      * @param {HTMLInputElement|jQuery|String} input
      * @param {String?} newValue
      * @returns {String|MaskedInput|undefined}
      */
     MaskedInput.prototype._fieldValue = function (input, newValue) {
-        var that = this,
-            o = that.o,
-            p = that.p;
+        const that = this;
 
-        var $input = $(input);
+        const $input = $(input);
         if (!$input.length) return undefined;
         input = $input[0];
 
-        var part = /**MaskedInput~Part=*/ $input.data('part');
-        var validatedValue;
+        const part = /**MaskedInput~Part=*/ $input.data('part');
+        let validatedValue;
 
         if (newValue === undefined) {
-            var value = input.value;
+            let value = input.value;
 
             // Predefined choices?
             if (part.type === PartType.TEXT && part.options) {
@@ -1312,7 +1310,7 @@
             }
 
             // Enforce length
-            var maxLen = Math.max(part.length || 0, part.maxLength || 0);
+            const maxLen = Math.max(part.length || 0, part.maxLength || 0);
             if (maxLen > 0 && value.length > maxLen) {
                 value = value.substr(0, maxLen);
             }
@@ -1324,6 +1322,8 @@
             if (validatedValue !== true) { // A string, probably
                 value = validatedValue + '';
             }
+
+            return value;
         } else {
             newValue = newValue == null ? '' : (newValue + '');
             validatedValue = that._validateContent(newValue, part);
@@ -1338,8 +1338,6 @@
 
             that._syncInputSizeForPart(part);
         }
-
-        return value;
     };
 
     /**
@@ -1350,11 +1348,11 @@
      * @returns {String|MaskedInput|undefined}
      */
     MaskedInput.prototype.fieldValue = function (index, newValue) {
-        var that = this,
+        const that = this,
             o = that.o,
             p = that.p;
 
-        var input = p.inputs[index];
+        const input = p.inputs[index];
 
         if (!input) return undefined;
 
@@ -1373,7 +1371,7 @@
      * @returns {MaskedInput}
      */
     MaskedInput.prototype.option = function (name, newValue) {
-        var that = this,
+        const that = this,
             o = that.o;
 
         if (arguments.length === 2) {
@@ -1402,7 +1400,7 @@
      * @returns {MaskedInput|*}
      */
     MaskedInput.prototype._fieldOption = function (part, name, value) {
-        var that = this,
+        const that = this,
             o = that.o,
             p = that.p;
 
@@ -1421,10 +1419,10 @@
                 return that;
             }
 
-            if (name === 'name' && part.name != value) {
+            if (name === 'name' && part.name !== value) {
 
                 // Remove by the old name
-                if (parseInt(part.name, 10).toString() != part.name &&
+                if (parseInt(part.name, 10).toString() !== part.name &&
                     p.inputs[part.name]) {
                     if (p.inputs[part.name] instanceof HTMLElement) {
                         delete p.inputs[part.name];
@@ -1437,7 +1435,7 @@
                 }
 
                 // Assign the new name
-                if (value && parseInt(value, 10).toString() != value) {
+                if (value && parseInt(value, 10).toString() !== value) {
                     if (p.inputs[value]) {
                         if (p.inputs[value] instanceof HTMLElement) {
                             p.inputs[value] = [p.inputs[value], part];
@@ -1467,7 +1465,7 @@
 
             if ($.isArray(name)) {
                 // Return value mapping as an object
-                var options = {};
+                const options = {};
 
                 $.each(name, function () {
                     options[this] = part[this];
@@ -1492,11 +1490,11 @@
      * @returns {MaskedInput|*}
      */
     MaskedInput.prototype.fieldOption = function (index, name, value) {
-        var that = this,
+        const that = this,
             o = that.o,
             p = that.p;
 
-        var input = p.inputs[index];
+        const input = p.inputs[index];
         if (!input) return that;
 
         if (input.length > 1) {
@@ -1541,15 +1539,14 @@
      * @returns {String|undefined|MaskedInput}
      */
     MaskedInput.prototype.value = function (newValue) {
-        var that = this,
-            o = that.o,
+        const that = this,
             p = that.p;
 
-        var pi, part, value;
+        let pi, part, value;
 
         if (newValue === undefined) {
 
-            var out = '';
+            let out = '';
 
             for (pi = 0; pi < p.parsed.length; pi++) {
                 part = p.parsed[pi];
@@ -1602,17 +1599,17 @@
                         }
                     }
 
-                    var minLen = part.maxLength ?
+                    const minLen = part.maxLength ?
                         Math.max(0, Math.min(part.length || 0, part.maxLength || 0)) :
                         (part.length || 0);
-                    var maxLen = Math.max(part.length || 0, part.maxLength || 0);
+                    const maxLen = Math.max(part.length || 0, part.maxLength || 0);
 
                     // Try to pad with zeroes where possible
                     if (part.padding || part.padding === undefined) {
-                        var padding = typeof part.padding === 'number' ? part.padding || minLen : minLen;
+                        const padding = typeof part.padding === 'number' ? part.padding || minLen : minLen;
 
                         if (padding > 0 && value.length < padding) {
-                            for (var i = 0; i < value.length; i++) {
+                            for (let i = 0; i < value.length; i++) {
                                 if (/[0-9.]/.test(value[i])) {
                                     value = value.substr(0, i) +
                                         repeatChar('0', padding - value.length) +
@@ -1643,8 +1640,8 @@
                 p.valueRegex = new RegExp(that._valuePattern(), 'i');
             }
 
-            var matches = newValue.match(p.valueRegex) || [];
-            for (i = 1, pi = 0; i < matches.length && pi < p.parsed.length; i++, pi++) {
+            const matches = newValue.match(p.valueRegex) || [];
+            for (let i = 1, pi = 0; i < matches.length && pi < p.parsed.length; i++, pi++) {
                 part = p.parsed[pi];
                 value = matches[i] || '';
 
