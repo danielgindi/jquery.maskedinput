@@ -1,407 +1,397 @@
-(function () {
-    'use strict';
+'use strict';
 
-    /**
-     * @typedef {String} MaskedInput~PartType
-     * @name MaskedInput~PartType
-     * @enum {String}
-     */
-    const PartType = {
-        /** @const */ NUMBER: 'number',
-        /** @const */ TEXT: 'text',
-        /** @const */ LABEL: 'label'
-    };
+import $ from 'jquery';
 
-    /**
-     * @typedef {Object} MaskedInput~Part
-     * @property {MaskedInput~PartType} [type] - Type of the field
-     * @property {String|undefined} [name] - Name for this field
-     * @property {String|undefined} [ariaLabel] - An ARIA accessibility label
-     * @property {String|undefined} [text] - Text for this field if it's a LABEL
-     * @property {String|undefined} [placeholder] - Placeholder for the field
-     * @property {Number} [length] - Length of the field
-     * @property {Number} [maxLength] - Maximum length of the field
-     * @property {Number|undefined} [numericMin] - Minimum numeric value
-     * @property {Number|undefined} [numericMax] - Maximum numeric value
-     * @property {Boolean|undefined} [wholeNumber] - Force the number to be whole? (default `false`)
-     * @property {RegExp|String|function(value:String)|undefined} [validator] - Validator regex or function
-     * @property {String[]|undefined} [options] - Options to choose from for textual field
-     * @property {function(value,part:MaskedInput~Part)|undefined} [postProcess] - Function for post processing a value before retrieving by user
-     * @property {Boolean|Number|undefined} [padding] - Enable padding in value result (default `true`)
-     * @property {Boolean|undefined} [required] - Is the field required (default `true`)
-     * @property {String|undefined} [defaultValue] - Default value, used if field is not `required`
-     * @property {Boolean|undefined} [forcePlaceholderWidth] - Always consider placeholder's width (default `true`)
-     */
+/** CORE_BEGIN */
 
-    /**
-     * @typedef {Object} MaskedInput~Pattern
-     * @property {RegExp|String} [pattern] - Pattern to recognize in the format
-     * @property {MaskedInput~PartType} [type] - Type of the field
-     * @property {String|undefined} [name] - Name for this field
-     * @property {String|undefined} [ariaLabel] - An ARIA accessibility label
-     * @property {String|function(match):String|undefined} [text] - Text for this field if it's a LABEL
-     * @property {String|function(match):String|undefined} [placeholder] - Placeholder for the field
-     * @property {Number|function(match):Number} [length] - Length of the field
-     * @property {Number|function(match):Number} [maxLength] - Maximum length of the field
-     * @property {Number|function(match):Number|undefined} [numericMin] - Minimum numeric value
-     * @property {Number|function(match):Number|undefined} [numericMax] - Maximum numeric value
-     * @property {Boolean|undefined} [wholeNumber] - Force the number to be whole? (default `false`)
-     * @property {RegExp|String|function(value:String)|undefined} [validator] - Validator regex or function
-     * @property {String[]|function(match):String[]|undefined} [options] - Options to choose from for textual field
-     * @property {function(value,part:MaskedInput~Part)|undefined} [postProcess] - Function for post processing a value before retrieving by user
-     * @property {Boolean|Number|function(match):(Boolean|Number)|undefined} [padding] - Enable padding in value result (default `true`)
-     * @property {Boolean|function(match):Boolean|undefined} [required] - Is the field required (default `true`)
-     * @property {String|function(match):String|undefined} [defaultValue] - Default value, used if field is not `required`
-     * @property {Boolean|function(match):Boolean|undefined} [forcePlaceholderWidth] - Always consider placeholder's width (default `true`)
-     */
+/**
+ * @typedef {String} MaskedInput~PartType
+ * @name MaskedInput~PartType
+ * @enum {String}
+ */
+const PartType = {
+    /** @const */ NUMBER: 'number',
+    /** @const */ TEXT: 'text',
+    /** @const */ LABEL: 'label'
+};
 
-    /**
-     * @typedef {Object} MaskedInput~Options
-     * @property {String} [format] - Format to show
-     * @property {Object<String, MaskedInput~Pattern>} [patterns] - Additional patterns to recognize in the format
-     */
-    const defaults = /** @type {MaskedInput.Options} */ {
-        patterns: {}
-    };
+/**
+ * @typedef {Object} MaskedInput~Part
+ * @property {MaskedInput~PartType} [type] - Type of the field
+ * @property {String|undefined} [name] - Name for this field
+ * @property {String|undefined} [ariaLabel] - An ARIA accessibility label
+ * @property {String|undefined} [text] - Text for this field if it's a LABEL
+ * @property {String|undefined} [placeholder] - Placeholder for the field
+ * @property {Number} [length] - Length of the field
+ * @property {Number} [maxLength] - Maximum length of the field
+ * @property {Number|undefined} [numericMin] - Minimum numeric value
+ * @property {Number|undefined} [numericMax] - Maximum numeric value
+ * @property {Boolean|undefined} [wholeNumber] - Force the number to be whole? (default `false`)
+ * @property {RegExp|String|function(value:String)|undefined} [validator] - Validator regex or function
+ * @property {String[]|undefined} [options] - Options to choose from for textual field
+ * @property {function(value,part:MaskedInput~Part)|undefined} [postProcess] - Function for post processing a value before retrieving by user
+ * @property {Boolean|Number|undefined} [padding] - Enable padding in value result (default `true`)
+ * @property {Boolean|undefined} [required] - Is the field required (default `true`)
+ * @property {String|undefined} [defaultValue] - Default value, used if field is not `required`
+ * @property {Boolean|undefined} [forcePlaceholderWidth] - Always consider placeholder's width (default `true`)
+ */
 
-    const execRegexWithLeftovers = function (regex, input, onMatch, onLeftover) {
+/**
+ * @typedef {Object} MaskedInput~Pattern
+ * @property {RegExp|String} [pattern] - Pattern to recognize in the format
+ * @property {MaskedInput~PartType} [type] - Type of the field
+ * @property {String|undefined} [name] - Name for this field
+ * @property {String|undefined} [ariaLabel] - An ARIA accessibility label
+ * @property {String|function(match):String|undefined} [text] - Text for this field if it's a LABEL
+ * @property {String|function(match):String|undefined} [placeholder] - Placeholder for the field
+ * @property {Number|function(match):Number} [length] - Length of the field
+ * @property {Number|function(match):Number} [maxLength] - Maximum length of the field
+ * @property {Number|function(match):Number|undefined} [numericMin] - Minimum numeric value
+ * @property {Number|function(match):Number|undefined} [numericMax] - Maximum numeric value
+ * @property {Boolean|undefined} [wholeNumber] - Force the number to be whole? (default `false`)
+ * @property {RegExp|String|function(value:String)|undefined} [validator] - Validator regex or function
+ * @property {String[]|function(match):String[]|undefined} [options] - Options to choose from for textual field
+ * @property {function(value,part:MaskedInput~Part)|undefined} [postProcess] - Function for post processing a value before retrieving by user
+ * @property {Boolean|Number|function(match):(Boolean|Number)|undefined} [padding] - Enable padding in value result (default `true`)
+ * @property {Boolean|function(match):Boolean|undefined} [required] - Is the field required (default `true`)
+ * @property {String|function(match):String|undefined} [defaultValue] - Default value, used if field is not `required`
+ * @property {Boolean|function(match):Boolean|undefined} [forcePlaceholderWidth] - Always consider placeholder's width (default `true`)
+ */
 
-        let match, lastIndex = 0;
-        regex.lastIndex = 0;
-        while ((match = regex.exec(input))) {
+/**
+ * @typedef {Object} MaskedInput~Options
+ * @property {String} [format] - Format to show
+ * @property {Object<String, MaskedInput~Pattern>} [patterns] - Additional patterns to recognize in the format
+ */
+const defaults = /** @type {MaskedInput.Options} */ {
+    patterns: {}
+};
 
-            // Add skipped raw text
-            if (match.index > lastIndex) {
-                onLeftover(input.substring(lastIndex, match.index));
-            }
+const execRegexWithLeftovers = function (regex, input, onMatch, onLeftover) {
 
-            onMatch(match);
+    let match, lastIndex = 0;
+    regex.lastIndex = 0;
+    while ((match = regex.exec(input))) {
 
-            lastIndex = regex.lastIndex;
+        // Add skipped raw text
+        if (match.index > lastIndex) {
+            onLeftover(input.substring(lastIndex, match.index));
         }
 
-        // Add remaining text
-        if (input.length > lastIndex) {
-            onLeftover(input.substring(lastIndex, input.length));
-        }
+        onMatch(match);
 
-    };
-
-    /**
-     * Get the selection range in an element
-     * @param {HTMLInputElement} el
-     * @returns {{begin: Number, end: Number, direction: 'forward'|'backward'|'none'|undefined}}
-     */
-    const getSelectionRange = function (el) {
-        let begin, end, direction = 'none';
-
-        if (el.setSelectionRange) {
-
-            begin = el.selectionStart;
-            end = el.selectionEnd;
-            direction = el.selectionDirection;
-
-        } else if (document.selection && document.selection.createRange) {
-
-            const range = document.selection.createRange();
-            begin = 0 - range.duplicate().moveStart('character', -10000);
-            end = begin + range.text.length;
-        }
-
-        return {
-            begin : begin,
-            end : end,
-            direction: direction
-        }
-    };
-
-    /**
-     * Set the selection range in an element
-     * @param {HTMLInputElement} el
-     * @param {Number|{begin: Number, end: Number, direction: 'forward'|'backward'|'none'|undefined}} begin
-     * @param {Number?} end
-     * @param {('forward'|'backward'|'none')?} direction
-     */
-    const setSelectionRange = function (el, begin, end, direction) {
-
-        if (typeof arguments[1] === 'object' && 'begin' in arguments[1]) {
-            begin = arguments[1].begin;
-            end = arguments[1].end;
-            direction = arguments[1].direction;
-        }
-
-        if (direction === undefined) {
-            if (typeof arguments[2] === 'string' &&
-                (arguments[2] === 'forward' || arguments[2] === 'backward' || arguments[2] === 'none')) {
-                direction = arguments[2];
-                end = null;
-            }
-        }
-
-        end = end == null ? begin : end;
-
-        if (el.setSelectionRange) {
-            el.setSelectionRange(begin, end, direction);
-
-        } else {
-            if (el.createTextRange) {
-                const range = el.createTextRange();
-                range.collapse(true);
-                range.moveEnd('character', end);
-                range.moveStart('character', begin);
-                range.select();
-            }
-        }
-
-    };
-
-    const repeatChar = function (char, length) {
-        let out = '';
-        for (let i = 0; i < length; i++) {
-            out += char;
-        }
-        return out;
-    };
-
-    /**
-     * @param {String[]} options
-     * @param {String} term
-     * @param {Boolean?} closestChoice
-     * @param {Boolean?} returnFullMatch
-     * @param {Boolean?} caseSensitive
-     * @returns {String|undefined}
-     */
-    const findMatchInArray = function (options, term, closestChoice, returnFullMatch, caseSensitive) {
-
-        let i, option, optionLower;
-        const termLower = caseSensitive ? term : term.toLowerCase();
-
-        if (closestChoice) {
-            // Search for a partial option or partial content match, return the longest match found, or `false`
-
-            let maxMatchLength = 0;
-            let maxMatchOption;
-            let maxMatchFullOption;
-
-            for (i = 0; i < options.length; i++) {
-                option = options[i];
-                optionLower = caseSensitive ? option : option.toLowerCase();
-
-                for (let clen = Math.min(option.length, 1); clen <= term.length; clen++) {
-                    if (option.length >= clen &&
-                        optionLower.substr(0, clen) === termLower.substr(0, clen)) {
-                        if (clen > maxMatchLength) {
-                            maxMatchLength = clen;
-                            maxMatchOption = option.substr(0, clen);
-                            maxMatchFullOption = option;
-                        }
-                    } else {
-                        break;
-                    }
-                }
-            }
-
-            return returnFullMatch ? maxMatchFullOption : maxMatchOption;
-
-        } else {
-
-            // Search for an exact match or option "starts with" the content - all case insensitive
-            for (i = 0; i < options.length; i++) {
-                option = options[i];
-                optionLower = caseSensitive ? option : option.toLowerCase();
-
-                if (option.length >= term.length &&
-                    optionLower.substr(0, term.length) === termLower)
-                    return returnFullMatch ? option : true;
-            }
-        }
-    };
-
-    /**
-     * Regex escape
-     * @param {String} str
-     * @returns {XML|void|string}
-     */
-    const escapeRegExp = function (str) {
-        return str.replace(/[\-\[\]\/{}()*+?.\\\^$|]/g, '\\$&');
-    };
-    /**
-     * Search for closest element to a specified point
-     * @param {HTMLElement[]} elements
-     * @param {{left: Number, top: Number }} offset
-     * @returns {HTMLElement|null}
-     */
-    const closestToOffset = function (elements, offset) {
-        const x = offset.left,
-            y = offset.top;
-        let bestMatch = null,
-            minDistance = null;
-
-        for (let i = 0; i < elements.length; i++) {
-            const el = elements[i], $el = $(el);
-            const elOffset = $el.offset();
-
-            elOffset.right = elOffset.left + $el.outerWidth();
-            elOffset.bottom = elOffset.top + $el.outerHeight();
-            
-            if (
-                (x >= elOffset.left) && (x <= elOffset.right) &&
-                (y >= elOffset.top) && (y <= elOffset.bottom)
-            ) {
-                return el;
-            }
-
-            const offsets = [
-                [elOffset.left, elOffset.top],
-                [elOffset.right, elOffset.top],
-                [elOffset.left, elOffset.bottom],
-                [elOffset.right, elOffset.bottom]
-            ];
-
-            for (let o = 0; o < 4; o++) {
-                const offset = offsets[o];
-                const dx = offset[0] - x;
-                const dy = offset[1] - y;
-                const distance = Math.sqrt((dx * dx) + (dy * dy));
-
-                if (minDistance == null || distance < minDistance) {
-                    minDistance = distance;
-                    bestMatch = el;
-                }
-            }
-        }
-                
-        return bestMatch;
-    };
-
-    const callFunctor = function (functor, bind, arg1) {
-        return (typeof functor === 'function') ?
-            functor.apply(bind, Array.prototype.slice.call(arguments, 2)) :
-            functor;
-    };
-
-    const inputBackbufferCssProps = [
-        'font-family',
-        'font-size',
-        'font-weight',
-        'font-size',
-        'letter-spacing',
-        'text-transform',
-        'word-spacing',
-        'text-indent',
-        'box-sizing',
-        'padding-left',
-        'padding-right'
-    ];
-
-    const hasComputedStyle = document.defaultView && document.defaultView.getComputedStyle;
-
-    /**
-     * Gets the precise content width for an element, with fractions
-     * @param {Element} el
-     * @returns {Number}
-     */
-    const getPreciseContentWidth = function (el) {
-
-        const style = hasComputedStyle ? document.defaultView.getComputedStyle(el) : el.currentStyle;
-        let width = parseFloat(style['width']) || 0;
-
-        if (style['boxSizing'] === 'border-box') {
-            width -= parseFloat(style['paddingLeft']) || 0;
-            width -= parseFloat(style['paddingRight']) || 0;
-            width -= parseFloat(style['borderLeftWidth']) || 0;
-            width -= parseFloat(style['borderRightWidth']) || 0;
-
-            if (width < 0) {
-                width = 0;
-            }
-        }
-
-        return width;
-    };
-
-    const FOCUSABLES = [
-        'a[href]',
-        'area[href]',
-        'input:not([disabled])',
-        'select:not([disabled])',
-        'textarea:not([disabled])',
-        'button:not([disabled])',
-        'iframe',
-        'object',
-        'embed',
-        '*[tabindex]',
-        '*[contenteditable]'
-    ];
-
-    const FOCUSABLE_SELECTOR = FOCUSABLES.join(',');
-    const TABBABLE_SELECTOR = FOCUSABLES.map(function (x) { return x + ':not([tabindex=-1])'}).join(',');
-
-    const KEY_ENTER = 13;
-    const KEY_ARROW_UP = 38;
-    const KEY_ARROW_DOWN = 40;
-    const KEY_ARROW_LEFT = 37;
-    const KEY_ARROW_RIGHT = 39;
-
-    /** @class MaskedInput */
-    function MaskedInput() {
-        if (!(this instanceof MaskedInput)) {
-            // Allow constructing without `new`
-            return new (Function.prototype.bind.apply(
-                MaskedInput,
-                [MaskedInput].concat(Array.prototype.slice.call(arguments, 0))));
-        }
-
-        this.initialize.apply(this, arguments);
+        lastIndex = regex.lastIndex;
     }
 
+    // Add remaining text
+    if (input.length > lastIndex) {
+        onLeftover(input.substring(lastIndex, input.length));
+    }
+
+};
+
+/**
+ * Get the selection range in an element
+ * @param {HTMLInputElement} el
+ * @returns {{begin: Number, end: Number, direction: 'forward'|'backward'|'none'|undefined}}
+ */
+const getSelectionRange = function (el) {
+    let begin, end, direction = 'none';
+
+    if (el.setSelectionRange) {
+
+        begin = el.selectionStart;
+        end = el.selectionEnd;
+        direction = el.selectionDirection;
+
+    } else if (document.selection && document.selection.createRange) {
+
+        const range = document.selection.createRange();
+        begin = 0 - range.duplicate().moveStart('character', -10000);
+        end = begin + range.text.length;
+    }
+
+    return {
+        begin : begin,
+        end : end,
+        direction: direction
+    }
+};
+
+/**
+ * Set the selection range in an element
+ * @param {HTMLInputElement} el
+ * @param {Number|{begin: Number, end: Number, direction: 'forward'|'backward'|'none'|undefined}} begin
+ * @param {Number?} end
+ * @param {('forward'|'backward'|'none')?} direction
+ */
+const setSelectionRange = function (el, begin, end, direction) {
+
+    if (typeof arguments[1] === 'object' && 'begin' in arguments[1]) {
+        begin = arguments[1].begin;
+        end = arguments[1].end;
+        direction = arguments[1].direction;
+    }
+
+    if (direction === undefined) {
+        if (typeof arguments[2] === 'string' &&
+            (arguments[2] === 'forward' || arguments[2] === 'backward' || arguments[2] === 'none')) {
+            direction = arguments[2];
+            end = null;
+        }
+    }
+
+    end = end == null ? begin : end;
+
+    if (el.setSelectionRange) {
+        el.setSelectionRange(begin, end, direction);
+
+    } else {
+        if (el.createTextRange) {
+            const range = el.createTextRange();
+            range.collapse(true);
+            range.moveEnd('character', end);
+            range.moveStart('character', begin);
+            range.select();
+        }
+    }
+
+};
+
+const repeatChar = function (char, length) {
+    let out = '';
+    for (let i = 0; i < length; i++) {
+        out += char;
+    }
+    return out;
+};
+
+/**
+ * @param {String[]} options
+ * @param {String} term
+ * @param {Boolean?} closestChoice
+ * @param {Boolean?} returnFullMatch
+ * @param {Boolean?} caseSensitive
+ * @returns {String|undefined}
+ */
+const findMatchInArray = function (options, term, closestChoice, returnFullMatch, caseSensitive) {
+
+    let i, option, optionLower;
+    const termLower = caseSensitive ? term : term.toLowerCase();
+
+    if (closestChoice) {
+        // Search for a partial option or partial content match, return the longest match found, or `false`
+
+        let maxMatchLength = 0;
+        let maxMatchOption;
+        let maxMatchFullOption;
+
+        for (i = 0; i < options.length; i++) {
+            option = options[i];
+            optionLower = caseSensitive ? option : option.toLowerCase();
+
+            for (let clen = Math.min(option.length, 1); clen <= term.length; clen++) {
+                if (option.length >= clen &&
+                    optionLower.substr(0, clen) === termLower.substr(0, clen)) {
+                    if (clen > maxMatchLength) {
+                        maxMatchLength = clen;
+                        maxMatchOption = option.substr(0, clen);
+                        maxMatchFullOption = option;
+                    }
+                } else {
+                    break;
+                }
+            }
+        }
+
+        return returnFullMatch ? maxMatchFullOption : maxMatchOption;
+
+    } else {
+
+        // Search for an exact match or option "starts with" the content - all case insensitive
+        for (i = 0; i < options.length; i++) {
+            option = options[i];
+            optionLower = caseSensitive ? option : option.toLowerCase();
+
+            if (option.length >= term.length &&
+                optionLower.substr(0, term.length) === termLower)
+                return returnFullMatch ? option : true;
+        }
+    }
+};
+
+/**
+ * Regex escape
+ * @param {String} str
+ * @returns {XML|void|string}
+ */
+const escapeRegExp = function (str) {
+    return str.replace(/[\-\[\]\/{}()*+?.\\\^$|]/g, '\\$&');
+};
+/**
+ * Search for closest element to a specified point
+ * @param {HTMLElement[]} elements
+ * @param {{left: Number, top: Number }} offset
+ * @returns {HTMLElement|null}
+ */
+const closestToOffset = function (elements, offset) {
+    const x = offset.left,
+        y = offset.top;
+    let bestMatch = null,
+        minDistance = null;
+
+    for (let i = 0; i < elements.length; i++) {
+        const el = elements[i], $el = $(el);
+        const elOffset = $el.offset();
+
+        elOffset.right = elOffset.left + $el.outerWidth();
+        elOffset.bottom = elOffset.top + $el.outerHeight();
+
+        if (
+            (x >= elOffset.left) && (x <= elOffset.right) &&
+            (y >= elOffset.top) && (y <= elOffset.bottom)
+        ) {
+            return el;
+        }
+
+        const offsets = [
+            [elOffset.left, elOffset.top],
+            [elOffset.right, elOffset.top],
+            [elOffset.left, elOffset.bottom],
+            [elOffset.right, elOffset.bottom]
+        ];
+
+        for (let o = 0; o < 4; o++) {
+            const offset = offsets[o];
+            const dx = offset[0] - x;
+            const dy = offset[1] - y;
+            const distance = Math.sqrt((dx * dx) + (dy * dy));
+
+            if (minDistance == null || distance < minDistance) {
+                minDistance = distance;
+                bestMatch = el;
+            }
+        }
+    }
+
+    return bestMatch;
+};
+
+const callFunctor = function (functor, bind, arg1) {
+    return (typeof functor === 'function') ?
+        functor.apply(bind, Array.prototype.slice.call(arguments, 2)) :
+        functor;
+};
+
+const inputBackbufferCssProps = [
+    'font-family',
+    'font-size',
+    'font-weight',
+    'font-size',
+    'letter-spacing',
+    'text-transform',
+    'word-spacing',
+    'text-indent',
+    'box-sizing',
+    'padding-left',
+    'padding-right'
+];
+
+const hasComputedStyle = document.defaultView && document.defaultView.getComputedStyle;
+
+/**
+ * Gets the precise content width for an element, with fractions
+ * @param {Element} el
+ * @returns {Number}
+ */
+const getPreciseContentWidth = function (el) {
+
+    const style = hasComputedStyle ? document.defaultView.getComputedStyle(el) : el.currentStyle;
+    let width = parseFloat(style['width']) || 0;
+
+    if (style['boxSizing'] === 'border-box') {
+        width -= parseFloat(style['paddingLeft']) || 0;
+        width -= parseFloat(style['paddingRight']) || 0;
+        width -= parseFloat(style['borderLeftWidth']) || 0;
+        width -= parseFloat(style['borderRightWidth']) || 0;
+
+        if (width < 0) {
+            width = 0;
+        }
+    }
+
+    return width;
+};
+
+const FOCUSABLES = [
+    'a[href]',
+    'area[href]',
+    'input:not([disabled])',
+    'select:not([disabled])',
+    'textarea:not([disabled])',
+    'button:not([disabled])',
+    'iframe',
+    'object',
+    'embed',
+    '*[tabindex]',
+    '*[contenteditable]'
+];
+
+const FOCUSABLE_SELECTOR = FOCUSABLES.join(',');
+const TABBABLE_SELECTOR = FOCUSABLES.map(x => x + ':not([tabindex=-1])').join(',');
+
+const KEY_ENTER = 13;
+const KEY_ARROW_UP = 38;
+const KEY_ARROW_DOWN = 40;
+const KEY_ARROW_LEFT = 37;
+const KEY_ARROW_RIGHT = 39;
+
+/** @class MaskedInput */
+class MaskedInput {
     /**
-     * @constructs
      * @param {MaskedInput.Options?} options
      * @returns {MaskedInput}
      */
-    MaskedInput.prototype.initialize = function (options) {
-        const that = this;
-
+    constructor(options) {
         /** @private */
-        const o = that.o = $.extend({}, MaskedInput.defaults, options);
+        const o = this.o = $.extend({}, MaskedInput.defaults, options);
 
         let patterns = {};
-        $.each(MaskedInput.patternAddons, function () {
-            patterns = $.extend(patterns, this);
+        MaskedInput.patternAddons.forEach(addon => {
+            patterns = $.extend(patterns, addon);
         });
         patterns = $.extend(patterns, o.patterns);
         o.patterns = patterns;
 
         /** This is for encapsulating private data */
-        const p = that.p = {};
+        const p = this.p = {};
 
         p.enabled = true;
         p.inputs = [];
 
         /** @public */
-        const $el = that.$el = $('<div>').addClass(o.className || 'masked-input');
+        const $el = this.$el = $('<div>').addClass(o.className || 'masked-input');
 
         /** @public */
-        that.el = that.$el[0];
+        this.el = this.$el[0];
 
         // Set control data
         $el
-            .data('control', that)
-            .data('maskedinput', that);
+            .data('control', this)
+            .data('maskedinput', this);
 
         // Parse format
-        p.parsed = that._parseFormat(o.format);
+        p.parsed = this._parseFormat(o.format);
 
         // Create backbuffer for input
         p.$inputBackBuffer = $('<span aria-hidden="true" style="position:absolute;z-index:-1;left:0;top:-9999px;white-space:pre;"/>');
-        
+
         // Hook up click event
-        $el.on('click', function (event) {
-            if (event.target !== this && 
+        $el.on('click', event => {
+            if (event.target !== event.currentTarget &&
                 $(event.target).is(FOCUSABLE_SELECTOR)) return;
 
-            const offset = $(this).offset();
+            const offset = $(event.currentTarget).offset();
             offset.left += event.offsetX;
             offset.top += event.offsetY;
 
@@ -412,24 +402,16 @@
             }
         });
 
-        that.render();
+        this.render();
 
-        setTimeout(function () {
-            if (that.el && that.el.parentNode) {
-                that.resize();
+        setTimeout(() => {
+            if (this.el && this.el.parentNode) {
+                this.resize();
             }
         }, 0);
 
-        return that;
-    };
-
-    const FORMAT_REGEX = new RegExp(
-        '(0+(?::[a-zA-Z0-9_]+)?)' + /* numeric value, fixed length, with possible :name_123 */
-        '|(#+(?::[a-zA-Z0-9_]+)?)' + /* numeric value, with possible :name_123 */
-        '|((?:@+|\\*)(?::[a-zA-Z0-9_]+)?)' + /* text value with maximum or variable length, with possible :name_123 */
-        '|("[^"]*"|\'[^\']*\')' /* possible quoted text */
-        , 'g' // find all matches
-    );
+        return this;
+    }
 
     /**
      *
@@ -437,14 +419,14 @@
      * @param format
      * @returns {MaskedInput~Part[]}
      */
-    MaskedInput.prototype._parseFormat = function (format) {
-        const that = this, o = that.o;
+    _parseFormat(format) {
+        const o = this.o;
 
         let parsedFormat = [];
 
         // Loop through basic format matches
 
-        execRegexWithLeftovers(FORMAT_REGEX, format, function onMatch(match) {
+        execRegexWithLeftovers(FORMAT_REGEX, format, (function onMatch(match) {
 
             const numericMatch = match[1] || match[2];
             const textMatch = match[3];
@@ -469,8 +451,7 @@
                 }
 
                 parsedFormat.push(part);
-            }
-            else if (textMatch) {
+            } else if (textMatch) {
                 part = { type: PartType.TEXT };
                 if (textMatch[0] === '*') {
                     part.length = 0;
@@ -485,8 +466,7 @@
                     }
                 }
                 parsedFormat.push(part);
-            }
-            else if (quotedMatch) {
+            } else if (quotedMatch) {
                 const labelText = quotedMatch.substr(1, quotedMatch.length - 2);
                 part = {
                     type: PartType.LABEL,
@@ -496,7 +476,7 @@
                 parsedFormat.push(part);
             }
 
-        }, function onLeftover(leftover) {
+        }).bind(this), (function onLeftover(leftover) {
 
             const leftoverParts = [];
 
@@ -507,7 +487,8 @@
             };
             leftoverParts.push(part);
 
-            $.each(o.patterns, function (key, patterns) {
+            Object.keys(o.patterns).forEach(key => {
+                const patterns = o.patterns[key];
 
                 const regex = new RegExp(
                     patterns.pattern instanceof RegExp ?
@@ -524,7 +505,7 @@
 
                     const newParts = [];
 
-                    execRegexWithLeftovers(regex, fpart.text, function onMatch(match) {
+                    execRegexWithLeftovers(regex, fpart.text, (function onMatch(match) {
 
                         let validator;
                         if (patterns.validator instanceof RegExp || typeof patterns.validator === 'function') {
@@ -537,28 +518,28 @@
 
                         // Translate the part
                         const part = {
-                            type: callFunctor(patterns.type, that, match[0]),
-                            name: callFunctor(patterns.name, that, match[0]),
-                            ariaLabel: callFunctor(patterns.ariaLabel, that, match[0]),
-                            text: callFunctor(patterns.text, that, match[0]),
-                            placeholder: callFunctor(patterns.placeholder, that, match[0]),
-                            length: callFunctor(patterns.length, that, match[0]) || 0,
-                            maxLength: callFunctor(patterns.maxLength, that, match[0]) || 0,
-                            numericMin: callFunctor(patterns.numericMin, that, match[0]),
-                            numericMax: callFunctor(patterns.numericMax, that, match[0]),
-                            wholeNumber: callFunctor(patterns.wholeNumber, that, match[0]),
+                            type: callFunctor(patterns.type, this, match[0]),
+                            name: callFunctor(patterns.name, this, match[0]),
+                            ariaLabel: callFunctor(patterns.ariaLabel, this, match[0]),
+                            text: callFunctor(patterns.text, this, match[0]),
+                            placeholder: callFunctor(patterns.placeholder, this, match[0]),
+                            length: callFunctor(patterns.length, this, match[0]) || 0,
+                            maxLength: callFunctor(patterns.maxLength, this, match[0]) || 0,
+                            numericMin: callFunctor(patterns.numericMin, this, match[0]),
+                            numericMax: callFunctor(patterns.numericMax, this, match[0]),
+                            wholeNumber: callFunctor(patterns.wholeNumber, this, match[0]),
                             validator: validator,
-                            options: callFunctor(patterns.options, that, match[0]),
+                            options: callFunctor(patterns.options, this, match[0]),
                             postProcess: patterns.postProcess,
-                            padding: callFunctor(patterns.padding, that, match[0]),
-                            required: callFunctor(patterns.required, that, match[0]),
-                            defaultValue: callFunctor(patterns.defaultValue, that, match[0]),
-                            forcePlaceholderWidth: callFunctor(patterns.forcePlaceholderWidth, that, match[0])
+                            padding: callFunctor(patterns.padding, this, match[0]),
+                            required: callFunctor(patterns.required, this, match[0]),
+                            defaultValue: callFunctor(patterns.defaultValue, this, match[0]),
+                            forcePlaceholderWidth: callFunctor(patterns.forcePlaceholderWidth, this, match[0])
                         };
                         //noinspection JSReferencingMutableVariableFromClosure
                         newParts.push(part);
 
-                    }, function onLeftover(leftover) {
+                    }).bind(this), (function onLeftover(leftover) {
                         const part = {
                             type: PartType.LABEL,
                             text: leftover,
@@ -566,7 +547,7 @@
                         };
                         //noinspection JSReferencingMutableVariableFromClosure
                         newParts.push(part);
-                    });
+                    }).bind(this));
 
                     // Replace old label with new parts
                     Array.prototype.splice.apply(leftoverParts, [fpos, 1].concat(newParts));
@@ -578,31 +559,27 @@
             });
 
             parsedFormat = parsedFormat.concat(leftoverParts);
-        });
+        }).bind(this));
 
         return parsedFormat;
-    };
+    }
 
-    MaskedInput.prototype.render = function () {
-        const that = this,
-            o = that.o,
-            p = that.p;
+    render() {
+        const p = this.p;
 
-        that.$el.empty();
+        this.$el.empty();
 
         const inputs = [];
 
-        $.each(p.parsed, function () {
-            const part = this;
-
+        p.parsed.forEach(part => {
             if (part.type === PartType.LABEL) {
-                const $el = that._renderText(part).appendTo(that.$el);
+                const $el = this._renderText(part).appendTo(this.$el);
                 part.$el = $el;
                 part.el = $el[0];
                 return;
             }
 
-            const $input = that._renderInput(part).appendTo(that.$el);
+            const $input = this._renderInput(part).appendTo(this.$el);
 
             part.$el = $input;
             part.el = $input[0];
@@ -610,22 +587,16 @@
             inputs.push($input);
 
             if (part.name && parseInt(part.name, 10).toString() !== part.name) {
-                if (inputs.hasOwnProperty(part.name)) {
-                    inputs[part.name] = (inputs[part.name] instanceof HTMLElement)
-                        ? [inputs[part.name], part.el]
-                        : inputs[part.name].concat([part.el]);
-                } else {
-                    inputs[part.name] = part.el;
-                }
+                inputs[part.name] = (inputs[part.name] || []).concat(part.el);
             }
         });
 
         p.inputs = inputs;
 
-        that.resize();
+        this.resize();
 
-        return that;
-    };
+        return this;
+    }
 
     /**
      *
@@ -634,10 +605,8 @@
      * @param {HTMLInputElement?} input
      * @returns {jQuery}
      */
-    MaskedInput.prototype._renderInput = function (part, input) {
-        const that = this,
-            o = that.o,
-            p = that.p;
+    _renderInput(part, input) {
+        const p = this.p;
 
         const isNewInput = !input;
 
@@ -672,20 +641,20 @@
 
         if (isNewInput) {
             $input
-                .on('input.maskedinput', function (event) {
-                    that._handleInput(event, input, part);
-                    that._syncInputSizeForPart(part);
+                .on('input.maskedinput', event => {
+                    this._handleInput(event, input, part);
+                    this._syncInputSizeForPart(part);
                 })
-                .on('keydown.maskedinput', function (event) {
-                    that._handleKeydown(event, input, part);
+                .on('keydown.maskedinput', event => {
+                    this._handleKeydown(event, input, part);
                 })
-                .on('keypress.maskedinput', function (event) {
-                    that._handleKeypress(event, input, part);
+                .on('keypress.maskedinput', event => {
+                    this._handleKeypress(event, input, part);
                 });
         }
 
         return $input;
-    };
+    }
 
     /**
      *
@@ -693,9 +662,9 @@
      * @param {MaskedInput~Part} part
      * @returns {jQuery}
      */
-    MaskedInput.prototype._renderText = function (part) {
+    _renderText(part) {
         return $('<span style="white-space: pre">').text(part.text);
-    };
+    }
 
     /**
      *
@@ -705,9 +674,8 @@
      * @param {String=A} fallbackText
      * @returns {MaskedInput}
      */
-    MaskedInput.prototype._syncInputSize = function (input, alwaysConsiderPlaceholder, fallbackText) {
-        const that = this,
-            p = that.p;
+    _syncInputSize(input, alwaysConsiderPlaceholder, fallbackText) {
+        const p = this.p;
 
         if (alwaysConsiderPlaceholder === undefined) {
             alwaysConsiderPlaceholder = true;
@@ -729,7 +697,7 @@
         $backBuffer
             .css($input.css(inputBackbufferCssProps))
             .text(value)
-            .appendTo(that.$el);
+            .appendTo(this.$el);
 
         // Measure these
         let backBufferWidth = getPreciseContentWidth($backBuffer[0]) + 1 /* caret width */;
@@ -759,8 +727,8 @@
         // Remove backbuffer from DOM
         $backBuffer.remove();
 
-        return that;
-    };
+        return this;
+    }
 
     /**
      *
@@ -768,13 +736,13 @@
      * @param {MaskedInput~Part} part
      * @returns {MaskedInput}
      */
-    MaskedInput.prototype._syncInputSizeForPart = function (part) {
+    _syncInputSizeForPart(part) {
         if (!part.el || part.type === PartType.LABEL) return this;
         return this._syncInputSize(
             part.el,
             part.forcePlaceholderWidth === undefined ? true : !!part.forcePlaceholderWidth
         );
-    };
+    }
 
     /**
      *
@@ -784,24 +752,20 @@
      * @param {MaskedInput~Part} part
      * @returns {MaskedInput}
      */
-    MaskedInput.prototype._handleInput = function (event, input, part) {
-        const that = this,
-            o = that.o,
-            p = that.p;
-
+    _handleInput(event, input, part) {
         const content = input.value;
         let validatedContent;
 
         // Update input if acceptable
-        validatedContent = that._validateContent(content, part);
+        validatedContent = this._validateContent(content, part);
 
         if (validatedContent === false) {
             event.preventDefault();
 
             // Fire change event
-            that.$el.trigger('change');
+            this.$el.trigger('change');
 
-            return that;
+            return this;
         }
 
         if (typeof validatedContent === 'string' &&
@@ -809,17 +773,17 @@
             input.value = validatedContent;
         }
 
-        that._syncInputSizeForPart(part);
+        this._syncInputSizeForPart(part);
 
-        if (that._shouldMoveToNextFieldAfterInput(getSelectionRange(input), input.value, part)) {
+        if (this._shouldMoveToNextFieldAfterInput(getSelectionRange(input), input.value, part)) {
             $(input).nextAll(TABBABLE_SELECTOR).first().focus();
         }
 
         // Fire change event
-        that.$el.trigger('change');
+        this.$el.trigger('change');
 
-        return that;
-    };
+        return this;
+    }
 
     /**
      *
@@ -829,12 +793,8 @@
      * @param {MaskedInput~Part} part
      * @returns {MaskedInput}
      */
-    MaskedInput.prototype._handleKeydown = function (event, input, part) {
-        const that = this,
-            o = that.o,
-            p = that.p;
-
-        if (input.readOnly) return that;
+    _handleKeydown(event, input, part) {
+        if (input.readOnly) return this;
 
         const keycode = event.which;
         let triggerChange = false;
@@ -935,13 +895,13 @@
 
             // Update input if acceptable
             if (tryToUpdate && nextValue !== contentBefore) {
-                validatedContent = that._validateContent(nextValue, part);
+                validatedContent = this._validateContent(nextValue, part);
                 if (validatedContent === true) {
                     validatedContent = nextValue;
                 }
                 if (validatedContent !== false) {
                     input.value = validatedContent;
-                    that._syncInputSizeForPart(part);
+                    this._syncInputSizeForPart(part);
                     event.preventDefault();
 
                     triggerChange = true;
@@ -951,7 +911,7 @@
 
         if (triggerChange) {
             // Fire change event
-            that.$el.trigger('change');
+            this.$el.trigger('change');
         }
 
         // Handle LEFT/RIGHT arrows, basically when we are at the end/beginning of an input
@@ -969,8 +929,8 @@
             }
         }
 
-        return that;
-    };
+        return this;
+    }
 
     /**
      *
@@ -980,19 +940,15 @@
      * @param {MaskedInput~Part} part
      * @returns {MaskedInput}
      */
-    MaskedInput.prototype._handleKeypress = function (event, input, part) {
-        const that = this,
-            o = that.o,
-            p = that.p;
-
-        if (input.readOnly) return that;
+    _handleKeypress(event, input, part) {
+        if (input.readOnly) return this;
 
         const keycode = event.which;
         const pos = getSelectionRange(input);
 
         if (event.ctrlKey || event.altKey || event.metaKey ||
             !keycode ||
-            keycode < 32 || keycode === KEY_ENTER) return that; // Not a character, perform default
+            keycode < 32 || keycode === KEY_ENTER) return this; // Not a character, perform default
 
         event.preventDefault();
 
@@ -1006,8 +962,8 @@
             pressedChar +
             contentBefore.substr(pos.end);
 
-        const validatedContent = that._validateContent(contentAfter, part);
-        if (validatedContent === false) return that; // Not validated, ignore keypress
+        const validatedContent = this._validateContent(contentAfter, part);
+        if (validatedContent === false) return this; // Not validated, ignore keypress
 
         if (typeof validatedContent === 'string') {
             contentAfter = validatedContent;
@@ -1048,7 +1004,7 @@
             setSelectionRange(input, newPos);
 
             // See if we need to move on to next field
-            moveToNextField = that._shouldMoveToNextFieldAfterInput(newPos, contentAfter, part);
+            moveToNextField = this._shouldMoveToNextFieldAfterInput(newPos, contentAfter, part);
 
             triggerChange = true;
 
@@ -1065,19 +1021,19 @@
             }
         }
 
-        that._syncInputSizeForPart(part);
+        this._syncInputSizeForPart(part);
 
         if (triggerChange) {
             // Fire change event
-            that.$el.trigger('change');
+            this.$el.trigger('change');
         }
 
         if (moveToNextField) {
             $(input).nextAll(TABBABLE_SELECTOR).first().focus();
         }
 
-        return that;
-    };
+        return this;
+    }
 
     /**
      * Determines if we need to skip to next field after input change
@@ -1086,7 +1042,7 @@
      * @param {String} newContent
      * @param {MaskedInput~Part} part
      */
-    MaskedInput.prototype._shouldMoveToNextFieldAfterInput = function (newPos, newContent, part) {
+    _shouldMoveToNextFieldAfterInput(newPos, newContent, part) {
         if (newPos.begin === newContent.length) {
             if (part.type === PartType.TEXT) {
                 return findMatchInArray(part.options, newContent, false, true, false) === newContent;
@@ -1097,7 +1053,7 @@
         }
 
         return false;
-    };
+    }
 
     /**
      *
@@ -1106,7 +1062,7 @@
      * @param {MaskedInput~Part} part
      * @returns {String|Boolean}
      */
-    MaskedInput.prototype._validateContent = function (content, part) {
+    _validateContent(content, part) {
 
         // Priority given to validator
         if (part.validator) {
@@ -1181,23 +1137,19 @@
         }
 
         return false;
-    };
+    }
 
     /**
      * @public
      * @returns {MaskedInput}
      */
-    MaskedInput.prototype.resize = function () {
-        const that = this,
-            o = that.o,
-            p = that.p;
+    resize() {
+        const p = this.p;
 
-        $.each(p.parsed || [], function () {
-            that._syncInputSizeForPart(this);
-        });
+        (p.parsed || []).forEach(part => this._syncInputSizeForPart(part));
 
-        return that;
-    };
+        return this;
+    }
 
     /**
      * Retrieve a field element by index or label
@@ -1205,32 +1157,27 @@
      * @param {Number|String} index
      * @returns {HTMLInputElement}
      */
-    MaskedInput.prototype.field = function (index) {
-        const that = this,
-            o = that.o,
-            p = that.p;
+    field(index) {
+        const p = this.p;
 
         const input = p.inputs[index];
 
         if (!input) return undefined;
 
         return $.isArray(input) ? input.slice(0) : input;
-    };
+    }
 
     /**
      * Creates a pattern for parsing an incoming value
      * @private
      * @returns {string}
      */
-    MaskedInput.prototype._valuePattern = function () {
-        const that = this,
-            o = that.o,
-            p = that.p;
+    _valuePattern() {
+        const p = this.p;
 
         let pattern = '';
 
-        $.each(p.parsed, function () {
-            const part = this;
+        p.parsed.forEach(part => {
             let group = '';
 
             const minLen = part.maxLength ?
@@ -1253,8 +1200,7 @@
                         group += '.*?';
                     }
                 }
-            }
-            else if (part.type === PartType.NUMBER) {
+            } else if (part.type === PartType.NUMBER) {
                 if (part.wholeNumber) {
                     if (part.length > 0) {
                         group += '[-+]' + '[0-9]{' + (minLen - 1) + ',' + (maxLen - 1) + '}';
@@ -1270,8 +1216,7 @@
                         group += '[-+]?(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)';
                     }
                 }
-            }
-            else /* if (part.type === PartType.LABEL) */ {
+            } else /* if (part.type === PartType.LABEL) */ {
                 group += escapeRegExp(part.text == null ? '' : (part.text + ''));
             }
 
@@ -1283,7 +1228,7 @@
         });
 
         return '^' + pattern + '$';
-    };
+    }
 
     /**
      * Retrieve or set an input element's value
@@ -1292,9 +1237,7 @@
      * @param {String?} newValue
      * @returns {String|MaskedInput|undefined}
      */
-    MaskedInput.prototype._fieldValue = function (input, newValue) {
-        const that = this;
-
+    _fieldValue(input, newValue) {
         const $input = $(input);
         if (!$input.length) return undefined;
         input = $input[0];
@@ -1317,7 +1260,7 @@
             }
 
             // Validate value
-            validatedValue = that._validateContent(value, part);
+            validatedValue = this._validateContent(value, part);
             if (validatedValue === false) return undefined;
 
             if (validatedValue !== true) { // A string, probably
@@ -1327,19 +1270,18 @@
             return value;
         } else {
             newValue = newValue == null ? '' : (newValue + '');
-            validatedValue = that._validateContent(newValue, part);
+            validatedValue = this._validateContent(newValue, part);
             if (validatedValue === false) {
                 validatedValue = '';
-            }
-            else if (validatedValue === true) {
+            } else if (validatedValue === true) {
                 validatedValue = newValue;
             }
 
             input.value = validatedValue;
 
-            that._syncInputSizeForPart(part);
+            this._syncInputSizeForPart(part);
         }
-    };
+    }
 
     /**
      * Retrieve an input element's value by index or label
@@ -1348,22 +1290,20 @@
      * @param {String?} newValue
      * @returns {String|MaskedInput|undefined}
      */
-    MaskedInput.prototype.fieldValue = function (index, newValue) {
-        const that = this,
-            o = that.o,
-            p = that.p;
+    fieldValue(index, newValue) {
+        const p = this.p;
 
         const input = p.inputs[index];
 
         if (!input) return undefined;
 
         if (newValue === undefined) {
-            return that._fieldValue(input);
+            return this._fieldValue(input);
         } else {
-            that._fieldValue(input, newValue);
-            return that;
+            this._fieldValue(input, newValue);
+            return this;
         }
-    };
+    }
 
     /**
      * Gets or sets an option by name
@@ -1371,16 +1311,15 @@
      * @param {*?} newValue
      * @returns {MaskedInput}
      */
-    MaskedInput.prototype.option = function (name, newValue) {
-        const that = this,
-            o = that.o;
+    option(name, newValue) {
+        const o = this.o;
 
         if (arguments.length === 2) {
             if (name === 'patterns') {
                 o[name] = {};
 
-                $.each(MaskedInput.patternAddons, function () {
-                    o[name] = $.extend(o[name], this);
+                MaskedInput.patternAddons.forEach(addon => {
+                    o[name] = $.extend(o[name], addon);
                 });
 
                 o[name] = $.extend(o[name], newValue);
@@ -1390,34 +1329,32 @@
         } else {
             return o[name];
         }
-    };
+    }
 
     /**
      * Gets or sets a part's option by option name
      * @private
      * @param {MaskedInput~Part} part
-     * @param {String} name
+     * @param {String|Object<String, *>} name
      * @param {*?} value
      * @returns {MaskedInput|*}
      */
-    MaskedInput.prototype._fieldOption = function (part, name, value) {
-        const that = this,
-            o = that.o,
-            p = that.p;
+    _fieldOption(part, name, value) {
+        const p = this.p;
 
         if (!part) {
-            return arguments.length === 3 ? that : undefined;
+            return arguments.length === 3 ? this : undefined;
         }
 
         if (arguments.length === 3 || typeof(name) === 'object') {
 
             if (typeof name === 'object') {
                 // Set the options object for part
-                $.each(name, function (name, value) {
-                    that._fieldOption(part, name, value);
+                Object.keys(/**@type {Object<String, *>}*/name).forEach(key => {
+                    this._fieldOption(part, key, name[key]);
                 });
 
-                return that;
+                return this;
             }
 
             if (name === 'name' && part.name !== value) {
@@ -1459,17 +1396,17 @@
                 name === 'name' ||
                 name === 'ariaLabel' ||
                 name === 'placeholder')) {
-                that._renderInput(part, part.el);
+                this._renderInput(part, part.el);
             }
 
         } else {
 
-            if ($.isArray(name)) {
+            if (Array.isArray(name)) {
                 // Return value mapping as an object
                 const options = {};
 
-                $.each(name, function () {
-                    options[this] = part[this];
+                (/**@type String[]*/name).forEach(key => {
+                    options[key] = part[key];
                 });
 
                 return options;
@@ -1479,8 +1416,8 @@
             }
         }
 
-        return that;
-    };
+        return this;
+    }
 
     /**
      * Gets or sets a part's option by part's index and option name
@@ -1490,48 +1427,45 @@
      * @param {*?} value
      * @returns {MaskedInput|*}
      */
-    MaskedInput.prototype.fieldOption = function (index, name, value) {
+    fieldOption(index, name, value) {
         const that = this,
-            o = that.o,
-            p = that.p;
+            p = this.p;
 
-        const input = p.inputs[index];
-        if (!input) return that;
+        const inputEls = p.inputs[index];
+        if (!inputEls) return this;
 
-        if (input.length > 1) {
+        if (inputEls.length > 1) {
             if (arguments.length === 3 || typeof(name) === 'object') {
 
                 // Set the option/options for all inputs
-                $.each(input, function () {
-                    that._fieldOption($(this).data('part'), name, value);
+                inputEls.forEach(el => {
+                    that._fieldOption($(el).data('part'), name, value);
                 });
 
                 delete p.valueRegex;
 
-                return that;
+                return this;
             } else {
 
                 // Return array of option/options for all inputs
-                return $.map(input, function () {
-                    return that._fieldOption($(this).data('part'), name);
-                });
+                return inputEls.map(el => that._fieldOption($(el).data('part'), name));
             }
         } else {
             if (arguments.length === 3) {
 
                 // Set the option/options for input
-                that._fieldOption($(input).data('part'), name, value);
+                this._fieldOption($(inputEls).data('part'), name, value);
 
                 delete p.valueRegex;
 
-                return that;
+                return this;
             } else {
 
                 // Return value/values
-                return that._fieldOption($(input).data('part'), name);
+                return this._fieldOption($(inputEls).data('part'), name);
             }
         }
-    };
+    }
 
     /**
      * Get or set the full value
@@ -1539,9 +1473,8 @@
      * @param {String?} newValue
      * @returns {String|undefined|MaskedInput}
      */
-    MaskedInput.prototype.value = function (newValue) {
-        const that = this,
-            p = that.p;
+    value(newValue) {
+        const p = this.p;
 
         let pi, part, value;
 
@@ -1554,11 +1487,11 @@
 
                 if (part.type === PartType.TEXT) {
 
-                    value = that._fieldValue(part.el);
+                    value = this._fieldValue(part.el);
 
                     // Check that the value is OK
                     if (part.postProcess) {
-                        value = part.postProcess.call(that, value, part) + '';
+                        value = part.postProcess.call(this, value, part) + '';
                     }
 
                     if (value === undefined) {
@@ -1573,7 +1506,7 @@
 
                 } else if (part.type === PartType.NUMBER) {
 
-                    value = that._fieldValue(part.el);
+                    value = this._fieldValue(part.el);
 
                     // Check that the value is OK
                     if (value === undefined) {
@@ -1586,7 +1519,7 @@
 
                     // Post process
                     if (part.postProcess) {
-                        value = part.postProcess.call(that, value, part);
+                        value = part.postProcess.call(this, value, part);
 
                         // Check again that the value is OK
                         if (value === undefined) {
@@ -1638,7 +1571,7 @@
 
         } else {
             if (!p.valueRegex) {
-                p.valueRegex = new RegExp(that._valuePattern(), 'i');
+                p.valueRegex = new RegExp(this._valuePattern(), 'i');
             }
 
             const matches = newValue.match(p.valueRegex) || [];
@@ -1648,7 +1581,7 @@
 
                 if (part.type !== PartType.LABEL) {
 
-                    that._fieldValue(part.el, value);
+                    this._fieldValue(part.el, value);
 
                 }
 
@@ -1660,23 +1593,37 @@
                     part = p.parsed[pi];
 
                     if (part.type !== PartType.LABEL) {
-                        that._fieldValue(part.el, '');
+                        this._fieldValue(part.el, '');
                     }
 
                 }
             }
         }
 
-        return that;
-    };
+        return this;
+    }
+
+    /**
+     *
+     * @returns {function(string?):(String|MaskedInput|undefined)}
+     */
+    get val() {
+        return this.value;
+    }
+
+    /**
+     * @public
+     * @returns {Boolean} <code>true</code> if enabled
+     */
+    get isEnabled() {
+        return this.p.enabled;
+    }
 
     /**
      * Set input enabled/disabled mode
-     * @public
-     * @param {Boolean} [enabled=true]
-     * @returns {MaskedInput}
+     * @param {Boolean} enabled
      */
-    MaskedInput.prototype.enable = function (enabled) {
+    set isEnabled(enabled) {
         const p = this.p;
 
         enabled = !!enabled || enabled === undefined;
@@ -1687,59 +1634,56 @@
         this.$el.find('input').prop('disabled', !enabled);
 
         return this;
-    };
-
-    /**
-     * Set input enabled/disabled mode
-     * @public
-     * @param {Boolean} [disabled=true]
-     * @returns {MaskedInput}
-     */
-    MaskedInput.prototype.disable = function (disabled) {
-        disabled = !!disabled || disabled === undefined;
-        return this.enable(!disabled);
-    };
-
-    /**
-     * @public
-     * @returns {Boolean} <code>true</code> if enabled
-     */
-    MaskedInput.prototype.isEnabled = function () {
-        return this.p.enabled;
-    };
+    }
 
     /**
      * @public
      * @returns {Boolean} <code>true</code> if disabled
      */
-    MaskedInput.prototype.isDisabled = function () {
+    get isDisabled() {
         return !this.p.enabled;
-    };
-
-    // Short version, compatible with jQuery's syntax
-    MaskedInput.prototype.val = MaskedInput.prototype.value;
+    }
 
     /**
-     * @public
-     * @expose
+     * Set input enabled/disabled mode
+     * @param {Boolean} disabled
      */
-    MaskedInput.PartType = PartType;
+    set isDisabled(disabled) {
+        disabled = !!disabled || disabled === undefined;
 
-    /**
-     * Here we can add more pattern addons
-     * @public
-     * @expose
-     */
-    MaskedInput.patternAddons = [];
+        this.isEnabled = !disabled;
+    }
+}
 
-    /**
-     * Default options for the control
-     * @public
-     * @expose
-     * @type {MaskedInput.Options}
-     */
-    MaskedInput.defaults = defaults;
-    
-    this.MaskedInput = MaskedInput;
-    
-}).call(this);
+const FORMAT_REGEX = new RegExp(
+    '(0+(?::[a-zA-Z0-9_]+)?)' + /* numeric value, fixed length, with possible :name_123 */
+    '|(#+(?::[a-zA-Z0-9_]+)?)' + /* numeric value, with possible :name_123 */
+    '|((?:@+|\\*)(?::[a-zA-Z0-9_]+)?)' + /* text value with maximum or variable length, with possible :name_123 */
+    '|("[^"]*"|\'[^\']*\')' /* possible quoted text */
+    , 'g' // find all matches
+);
+
+/**
+ * @public
+ * @expose
+ */
+MaskedInput.PartType = PartType;
+
+/**
+ * Here we can add more pattern addons
+ * @public
+ * @expose
+ */
+MaskedInput.patternAddons = [];
+
+/**
+ * Default options for the control
+ * @public
+ * @expose
+ * @type {MaskedInput.Options}
+ */
+MaskedInput.defaults = defaults;
+
+export default MaskedInput;
+
+/** CORE_END */
