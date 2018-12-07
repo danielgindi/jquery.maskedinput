@@ -1612,6 +1612,34 @@ class MaskedInput {
     }
 
     /**
+     * Set input enabled/disabled mode
+     * @param {Boolean} [enabled=true]
+     * @returns {MaskedInput} this
+     */
+    enable(enabled) {
+        const p = this.p;
+
+        enabled = !!enabled || enabled === undefined;
+
+        p.enabled = enabled;
+
+        this.$el.attr('disabled', enabled ? null : true);
+        this.$el.find('input').prop('disabled', !enabled);
+
+        return this;
+    }
+
+    /**
+     * Set input enabled/disabled mode
+     * @param {Boolean} [disabled=true]
+     * @returns {MaskedInput} this
+     */
+    disable(disabled) {
+        disabled = !!disabled || disabled === undefined;
+        return this.enable(!disabled);
+    }
+
+    /**
      * @public
      * @returns {Boolean} <code>true</code> if enabled
      */
@@ -1624,16 +1652,7 @@ class MaskedInput {
      * @param {Boolean} enabled
      */
     set isEnabled(enabled) {
-        const p = this.p;
-
-        enabled = !!enabled || enabled === undefined;
-
-        p.enabled = enabled;
-
-        this.$el[0].attr('disabled', enabled ? null : true);
-        this.$el.find('input').prop('disabled', !enabled);
-
-        return this;
+        this.enable(enabled);
     }
 
     /**
@@ -1649,9 +1668,7 @@ class MaskedInput {
      * @param {Boolean} disabled
      */
     set isDisabled(disabled) {
-        disabled = !!disabled || disabled === undefined;
-
-        this.isEnabled = !disabled;
+        this.disable(disabled);
     }
 }
 
