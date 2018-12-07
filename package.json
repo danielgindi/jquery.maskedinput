@@ -1,7 +1,7 @@
 {
   "name": "maskedinput.js",
   "description": "A jQuery masked input control",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "main": "dist/jquery.maskedinput.js",
   "author": {
     "name": "Daniel Cohen Gindi",
