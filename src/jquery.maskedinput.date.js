@@ -2,8 +2,6 @@
 
 import MaskedInput from './jquery.maskedinput.core';
 
-/** DATE_BEGIN */
-
 /**
  * @name MaskedInput~Options
  * @property {MaskedInput~DateLocale} [dateLocale] - Date localization map
@@ -43,13 +41,13 @@ const EnglishDateLocale = /** @type {MaskedInput~DateLocale} */ {
         'Jan', 'Feb', 'Mar',
         'Apr', 'May', 'Jun',
         'Jul', 'Aug', 'Sep',
-        'Oct', 'Nov', 'Dec'
+        'Oct', 'Nov', 'Dec',
     ],
     MMMM: [
         'January', 'February', 'March',
         'April', 'May', 'June',
         'July', 'August', 'September',
-        'October', 'November', 'December'
+        'October', 'November', 'December',
     ],
     t: ['a', 'p'],
     tt: ['am', 'pm'],
@@ -62,8 +60,8 @@ const EnglishDateLocale = /** @type {MaskedInput~DateLocale} */ {
         hour: 'Hour',
         minutes: 'Minutes',
         seconds: 'Seconds',
-        ampm: 'Am/Pm'
-    }
+        ampm: 'Am/Pm',
+    },
 };
 
 MaskedInput.defaults.dateLocale = EnglishDateLocale;
@@ -90,9 +88,9 @@ const DATE_PATTERN_MAP = {
             if (value < 1 || value > 31) return undefined;
             return value + '';
         },
-        ariaLabel: function (match) {
+        ariaLabel: function (_match) {
             return (this.option('dateLocale').aria || {}).day;
-        }
+        },
     },
     MM: {
         // M - 1-12
@@ -115,9 +113,9 @@ const DATE_PATTERN_MAP = {
             if (value < 1 || value > 12) return undefined;
             return value + '';
         },
-        ariaLabel: function (match) {
+        ariaLabel: function (_match) {
             return (this.option('dateLocale').aria || {}).month;
-        }
+        },
     },
     MMM: {
         // MMM - Jan-Dec
@@ -133,9 +131,9 @@ const DATE_PATTERN_MAP = {
         options: function (match) {
             return this.option('dateLocale')[match];
         },
-        ariaLabel: function (match) {
+        ariaLabel: function (_match) {
             return (this.option('dateLocale').aria || {}).month;
-        }
+        },
     },
     MMMM: {
         // MMMM - January-December
@@ -151,9 +149,9 @@ const DATE_PATTERN_MAP = {
         options: function (match) {
             return this.option('dateLocale')[match];
         },
-        ariaLabel: function (match) {
+        ariaLabel: function (_match) {
             return (this.option('dateLocale').aria || {}).month;
-        }
+        },
     },
     yyyy: {
         // yy - 85
@@ -194,9 +192,9 @@ const DATE_PATTERN_MAP = {
         padding: function (match) {
             return match.length;
         },
-        ariaLabel: function (match) {
+        ariaLabel: function (_match) {
             return (this.option('dateLocale').aria || {}).year;
-        }
+        },
     },
     HH: {
         // H - 0-24
@@ -214,9 +212,9 @@ const DATE_PATTERN_MAP = {
         padding: function (match) {
             return match.length;
         },
-        ariaLabel: function (match) {
+        ariaLabel: function (_match) {
             return (this.option('dateLocale').aria || {}).hour;
-        }
+        },
     },
     hh: {
         // h - 1-12
@@ -234,9 +232,9 @@ const DATE_PATTERN_MAP = {
         padding: function (match) {
             return match.length;
         },
-        ariaLabel: function (match) {
+        ariaLabel: function (_match) {
             return (this.option('dateLocale').aria || {}).hour;
-        }
+        },
     },
     mm: {
         // m - 0-59
@@ -254,9 +252,9 @@ const DATE_PATTERN_MAP = {
         padding: function (match) {
             return match.length;
         },
-        ariaLabel: function (match) {
+        ariaLabel: function (_match) {
             return (this.option('dateLocale').aria || {}).minutes;
-        }
+        },
     },
     ss: {
         // s - 0-59
@@ -274,9 +272,9 @@ const DATE_PATTERN_MAP = {
         padding: function (match) {
             return match.length;
         },
-        ariaLabel: function (match) {
+        ariaLabel: function (_match) {
             return (this.option('dateLocale').aria || {}).seconds;
-        }
+        },
     },
     tt: {
         // t - a/p
@@ -295,14 +293,12 @@ const DATE_PATTERN_MAP = {
         defaultValue: function (match) {
             return this.option('dateLocale')[match][0];
         },
-        ariaLabel: function (match) {
+        ariaLabel: function (_match) {
             return (this.option('dateLocale').aria || {}).ampm;
-        }
-    }
+        },
+    },
 };
 
 MaskedInput.patternAddons.push(DATE_PATTERN_MAP);
 
 export default MaskedInput;
-
-/** DATE_END */

@@ -2,8 +2,6 @@
 
 import $ from 'jquery';
 
-/** CORE_BEGIN */
-
 /**
  * @typedef {String} MaskedInput~PartType
  * @name MaskedInput~PartType
@@ -12,7 +10,7 @@ import $ from 'jquery';
 const PartType = {
     /** @const */ NUMBER: 'number',
     /** @const */ TEXT: 'text',
-    /** @const */ LABEL: 'label'
+    /** @const */ LABEL: 'label',
 };
 
 /**
@@ -64,7 +62,7 @@ const PartType = {
  * @property {Object<String, MaskedInput~Pattern>} [patterns] - Additional patterns to recognize in the format
  */
 const defaults = /** @type {MaskedInput.Options} */ {
-    patterns: {}
+    patterns: {},
 };
 
 const execRegexWithLeftovers = function (regex, input, onMatch, onLeftover) {
@@ -114,8 +112,8 @@ const getSelectionRange = function (el) {
     return {
         begin : begin,
         end : end,
-        direction: direction
-    }
+        direction: direction,
+    };
 };
 
 /**
@@ -226,7 +224,7 @@ const findMatchInArray = function (options, term, closestChoice, returnFullMatch
  * @returns {XML|void|string}
  */
 const escapeRegExp = function (str) {
-    return str.replace(/[\-\[\]\/{}()*+?.\\\^$|]/g, '\\$&');
+    return str.replace(/[-[\]/{}()*+?.\\$|]/g, '\\$&');
 };
 /**
  * Search for closest element to a specified point
@@ -258,7 +256,7 @@ const closestToOffset = function (elements, offset) {
             [elOffset.left, elOffset.top],
             [elOffset.right, elOffset.top],
             [elOffset.left, elOffset.bottom],
-            [elOffset.right, elOffset.bottom]
+            [elOffset.right, elOffset.bottom],
         ];
 
         for (let o = 0; o < 4; o++) {
@@ -277,7 +275,7 @@ const closestToOffset = function (elements, offset) {
     return bestMatch;
 };
 
-const callFunctor = function (functor, bind, arg1) {
+const callFunctor = function (functor, bind, _arg1) {
     return (typeof functor === 'function') ?
         functor.apply(bind, Array.prototype.slice.call(arguments, 2)) :
         functor;
@@ -294,7 +292,7 @@ const inputBackbufferCssProps = [
     'text-indent',
     'box-sizing',
     'padding-left',
-    'padding-right'
+    'padding-right',
 ];
 
 const hasComputedStyle = document.defaultView && document.defaultView.getComputedStyle;
@@ -334,7 +332,7 @@ const FOCUSABLES = [
     'object',
     'embed',
     '*[tabindex]',
-    '*[contenteditable]'
+    '*[contenteditable]',
 ];
 
 const FOCUSABLE_SELECTOR = FOCUSABLES.join(',');
@@ -471,7 +469,7 @@ class MaskedInput {
                 part = {
                     type: PartType.LABEL,
                     text: labelText,
-                    length: labelText.length
+                    length: labelText.length,
                 };
                 parsedFormat.push(part);
             }
@@ -483,7 +481,7 @@ class MaskedInput {
             const part = {
                 type: PartType.LABEL,
                 text: leftover,
-                length: leftover.length
+                length: leftover.length,
             };
             leftoverParts.push(part);
 
@@ -496,7 +494,7 @@ class MaskedInput {
                         patterns.pattern,
                     patterns.pattern instanceof RegExp ?
                         (patterns.pattern.flags + (patterns.pattern.flags.indexOf('g') > -1 ? '' : 'g')) :
-                        'g'
+                        'g',
                 );
 
                 for (let fpos = 0; fpos < leftoverParts.length; fpos++) {
@@ -513,7 +511,7 @@ class MaskedInput {
                         } else if (typeof patterns.validator === 'string') {
                             try {
                                 validator = new RegExp(patterns.validator);
-                            } catch (e) { }
+                            } catch (ignored) { /* nothing to do */ }
                         }
 
                         // Translate the part
@@ -534,7 +532,7 @@ class MaskedInput {
                             padding: callFunctor(patterns.padding, this, match[0]),
                             required: callFunctor(patterns.required, this, match[0]),
                             defaultValue: callFunctor(patterns.defaultValue, this, match[0]),
-                            forcePlaceholderWidth: callFunctor(patterns.forcePlaceholderWidth, this, match[0])
+                            forcePlaceholderWidth: callFunctor(patterns.forcePlaceholderWidth, this, match[0]),
                         };
                         //noinspection JSReferencingMutableVariableFromClosure
                         newParts.push(part);
@@ -543,7 +541,7 @@ class MaskedInput {
                         const part = {
                             type: PartType.LABEL,
                             text: leftover,
-                            length: leftover.length
+                            length: leftover.length,
                         };
                         //noinspection JSReferencingMutableVariableFromClosure
                         newParts.push(part);
@@ -710,7 +708,7 @@ class MaskedInput {
             $backBuffer.text(inputEl.placeholder);
             backBufferWidth = Math.max(
                 backBufferWidth,
-                getPreciseContentWidth($backBuffer[0]) + 1 /* caret width */
+                getPreciseContentWidth($backBuffer[0]) + 1, /* caret width */
             );
         }
 
@@ -740,7 +738,7 @@ class MaskedInput {
         if (!part.el || part.type === PartType.LABEL) return this;
         return this._syncInputSize(
             part.el,
-            part.forcePlaceholderWidth === undefined ? true : !!part.forcePlaceholderWidth
+            part.forcePlaceholderWidth === undefined ? true : !!part.forcePlaceholderWidth,
         );
     }
 
@@ -876,9 +874,9 @@ class MaskedInput {
                     nextValue = Math.max(
                         Math.min(
                             nextValue,
-                            typeof part.numericMax === 'number' ? part.numericMax : Infinity
+                            typeof part.numericMax === 'number' ? part.numericMax : Infinity,
                         ),
-                        typeof part.numericMin === 'number' ? part.numericMin : -Infinity
+                        typeof part.numericMin === 'number' ? part.numericMin : -Infinity,
                     );
                 }
 
@@ -1105,9 +1103,9 @@ class MaskedInput {
                     parsedValue = Math.max(
                         Math.min(
                             parsedValue,
-                            typeof part.numericMax === 'number' ? part.numericMax : Infinity
+                            typeof part.numericMax === 'number' ? part.numericMax : Infinity,
                         ),
-                        typeof part.numericMin === 'number' ? part.numericMin : -Infinity
+                        typeof part.numericMin === 'number' ? part.numericMin : -Infinity,
                     );
 
                     if (parsedValue !== parseFloat(content)) {
@@ -1213,7 +1211,7 @@ class MaskedInput {
                         group += '[-+]' + '[0-9.]{' + (minLen - 1) + ',' + (maxLen - 1) + '}';
                         group += '|[0-9.]{' + minLen + ',' + maxLen + '}';
                     } else {
-                        group += '[-+]?(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)';
+                        group += '[-+]?(?:[0-9]+(?:\\.[0-9]+)?|\\.[0-9]+)';
                     }
                 }
             } else /* if (part.type === PartType.LABEL) */ {
@@ -1346,7 +1344,7 @@ class MaskedInput {
             return arguments.length === 3 ? this : undefined;
         }
 
-        if (arguments.length === 3 || typeof(name) === 'object') {
+        if (arguments.length === 3 || typeof (name) === 'object') {
 
             if (typeof name === 'object') {
                 // Set the options object for part
@@ -1435,7 +1433,7 @@ class MaskedInput {
         if (!inputEls) return this;
 
         if (inputEls.length > 1) {
-            if (arguments.length === 3 || typeof(name) === 'object') {
+            if (arguments.length === 3 || typeof (name) === 'object') {
 
                 // Set the option/options for all inputs
                 inputEls.forEach(el => {
@@ -1677,7 +1675,7 @@ const FORMAT_REGEX = new RegExp(
     '|(#+(?::[a-zA-Z0-9_]+)?)' + /* numeric value, with possible :name_123 */
     '|((?:@+|\\*)(?::[a-zA-Z0-9_]+)?)' + /* text value with maximum or variable length, with possible :name_123 */
     '|("[^"]*"|\'[^\']*\')' /* possible quoted text */
-    , 'g' // find all matches
+    , 'g', // find all matches
 );
 
 /**
@@ -1702,5 +1700,3 @@ MaskedInput.patternAddons = [];
 MaskedInput.defaults = defaults;
 
 export default MaskedInput;
-
-/** CORE_END */

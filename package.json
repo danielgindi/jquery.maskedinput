@@ -3,6 +3,8 @@
   "description": "A jQuery masked input control",
   "version": "1.0.8",
   "main": "dist/jquery.maskedinput.js",
+  "module": "dist/jquery.maskedinput.es6.min.js",
+  "broswer": "dist/jquery.maskedinput.umd.min.js",
   "author": {
     "name": "Daniel Cohen Gindi",
     "email": "danielgindi@gmail.com"
@@ -10,6 +12,11 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/danielgindi/jquery.maskedinput.git"
+  },
+  "scripts": {
+    "build": "npm run lint && node ./scripts/build.js",
+    "lint": "eslint ./",
+    "lint-fix": "eslint --fix ./"
   },
   "bugs": {
     "url": "https://github.com/danielgindi/jquery.maskedinput/issues"
@@ -24,20 +31,20 @@
     "jquery": ">= 1.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.2.0",
-    "@babel/plugin-transform-modules-umd": "^7.2.0",
-    "@babel/preset-env": "^7.2.0",
-    "grunt": "^1.0.3",
-    "grunt-babel": "^8.0.0",
-    "grunt-contrib-concat": "^1.0.1",
-    "grunt-header": "^1.1.0",
-    "grunt-mkdir": "^1.0.0",
-    "grunt-remove": "^0.1.0",
-    "grunt-replace": "^1.0.1",
-    "grunt-terser": "^0.1.0",
-    "jsonminify": "^0.4.1"
-  },
-  "scripts": {
-    "build": "grunt build"
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-transform-runtime": "^7.9.0",
+    "@babel/polyfill": "^7.8.7",
+    "@babel/preset-env": "^7.9.0",
+    "@babel/runtime": "^7.9.2",
+    "babelify": "^10.0.0",
+    "core-js": "^3.6.4",
+    "eslint": "^6.8.0",
+    "fs-extra": "^9.0.0",
+    "husky": "^4.2.3",
+    "rollup": "^2.2.0",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-terser": "^5.3.0"
   }
 }
