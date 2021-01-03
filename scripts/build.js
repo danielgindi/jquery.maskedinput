@@ -31,6 +31,7 @@ const Path = require('path');
         dest: 'dist/jquery.maskedinput.umd.js',
         sourceMap: true,
         outputFormat: 'umd',
+        outputExports: 'default',
         babelTargets: '> 0.25%, not dead',
         minified: false,
         ecmaVersion: 6,
@@ -39,6 +40,7 @@ const Path = require('path');
         dest: 'dist/jquery.maskedinput.umd.min.js',
         sourceMap: true,
         outputFormat: 'umd',
+        outputExports: 'default',
         babelTargets: '> 0.25%, not dead',
         minified: true,
         ecmaVersion: 6,
@@ -47,6 +49,7 @@ const Path = require('path');
         dest: 'dist/jquery.maskedinput.cjs.js',
         sourceMap: true,
         outputFormat: 'cjs',
+        outputExports: 'default',
         babelTargets: {
             node: 10,
         },
@@ -56,6 +59,7 @@ const Path = require('path');
         dest: 'dist/jquery.maskedinput.cjs.min.js',
         sourceMap: true,
         outputFormat: 'cjs',
+        outputExports: 'default',
         babelTargets: {
             node: 10,
         },
@@ -129,21 +133,22 @@ const Path = require('path');
         });
 
         const bundle = await Rollup.rollup({
-                preserveSymlinks: true,
-                treeshake: false,
-                onwarn(warning, warn) {
-                    if (warning.code === 'THIS_IS_UNDEFINED') return;
-                    warn(warning);
-                },
-                input: inputFile,
-                plugins: plugins,
-                external: ['jquery', 'jQuery'],
-            });
+            preserveSymlinks: true,
+            treeshake: false,
+            onwarn(warning, warn) {
+                if (warning.code === 'THIS_IS_UNDEFINED') return;
+                warn(warning);
+            },
+            input: inputFile,
+            plugins: plugins,
+            external: ['jquery', 'jQuery'],
+        });
 
         let generated = await bundle.generate({
             name: task.outputName,
             sourcemap: task.sourceMap,
             format: task.outputFormat,
+            exports: task.outputExports,
             globals: {
                 jquery: 'jQuery',
             },
