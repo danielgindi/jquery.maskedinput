@@ -3,9 +3,9 @@
 import $ from 'jquery';
 
 /**
- * @typedef {String} MaskedInput~PartType
+ * @typedef {string} MaskedInput~PartType
  * @name MaskedInput~PartType
- * @enum {String}
+ * @enum {string}
  */
 const PartType = {
     /** @const */ NUMBER: 'number',
@@ -16,50 +16,50 @@ const PartType = {
 /**
  * @typedef {Object} MaskedInput~Part
  * @property {MaskedInput~PartType} [type] - Type of the field
- * @property {String|undefined} [name] - Name for this field
- * @property {String|undefined} [ariaLabel] - An ARIA accessibility label
- * @property {String|undefined} [text] - Text for this field if it's a LABEL
- * @property {String|undefined} [placeholder] - Placeholder for the field
- * @property {Number} [length] - Length of the field
- * @property {Number} [maxLength] - Maximum length of the field
- * @property {Number|undefined} [numericMin] - Minimum numeric value
- * @property {Number|undefined} [numericMax] - Maximum numeric value
- * @property {Boolean|undefined} [wholeNumber] - Force the number to be whole? (default `false`)
- * @property {RegExp|String|function(value:String)|undefined} [validator] - Validator regex or function
- * @property {String[]|undefined} [options] - Options to choose from for textual field
+ * @property {string|undefined} [name] - Name for this field
+ * @property {string|undefined} [ariaLabel] - An ARIA accessibility label
+ * @property {string|undefined} [text] - Text for this field if it's a LABEL
+ * @property {string|undefined} [placeholder] - Placeholder for the field
+ * @property {number} [length] - Length of the field
+ * @property {number} [maxLength] - Maximum length of the field
+ * @property {number|undefined} [numericMin] - Minimum numeric value
+ * @property {number|undefined} [numericMax] - Maximum numeric value
+ * @property {boolean|undefined} [wholeNumber] - Force the number to be whole? (default `false`)
+ * @property {RegExp|string|function(value:string)|undefined} [validator] - Validator regex or function
+ * @property {string[]|undefined} [options] - Options to choose from for textual field
  * @property {function(value,part:MaskedInput~Part)|undefined} [postProcess] - Function for post processing a value before retrieving by user
- * @property {Boolean|Number|undefined} [padding] - Enable padding in value result (default `true`)
- * @property {Boolean|undefined} [required] - Is the field required (default `true`)
- * @property {String|undefined} [defaultValue] - Default value, used if field is not `required`
- * @property {Boolean|undefined} [forcePlaceholderWidth] - Always consider placeholder's width (default `true`)
+ * @property {boolean|number|undefined} [padding] - Enable padding in value result (default `true`)
+ * @property {boolean|undefined} [required] - Is the field required (default `true`)
+ * @property {string|undefined} [defaultValue] - Default value, used if field is not `required`
+ * @property {boolean|undefined} [forcePlaceholderWidth] - Always consider placeholder's width (default `true`)
  */
 
 /**
  * @typedef {Object} MaskedInput~Pattern
- * @property {RegExp|String} [pattern] - Pattern to recognize in the format
+ * @property {RegExp|string} [pattern] - Pattern to recognize in the format
  * @property {MaskedInput~PartType} [type] - Type of the field
- * @property {String|undefined} [name] - Name for this field
- * @property {String|undefined} [ariaLabel] - An ARIA accessibility label
- * @property {String|function(match):String|undefined} [text] - Text for this field if it's a LABEL
- * @property {String|function(match):String|undefined} [placeholder] - Placeholder for the field
- * @property {Number|function(match):Number} [length] - Length of the field
- * @property {Number|function(match):Number} [maxLength] - Maximum length of the field
- * @property {Number|function(match):Number|undefined} [numericMin] - Minimum numeric value
- * @property {Number|function(match):Number|undefined} [numericMax] - Maximum numeric value
- * @property {Boolean|undefined} [wholeNumber] - Force the number to be whole? (default `false`)
- * @property {RegExp|String|function(value:String)|undefined} [validator] - Validator regex or function
- * @property {String[]|function(match):String[]|undefined} [options] - Options to choose from for textual field
+ * @property {string|undefined} [name] - Name for this field
+ * @property {string|undefined} [ariaLabel] - An ARIA accessibility label
+ * @property {string|function(match):string|undefined} [text] - Text for this field if it's a LABEL
+ * @property {string|function(match):string|undefined} [placeholder] - Placeholder for the field
+ * @property {number|function(match):number} [length] - Length of the field
+ * @property {number|function(match):number} [maxLength] - Maximum length of the field
+ * @property {number|function(match):number|undefined} [numericMin] - Minimum numeric value
+ * @property {number|function(match):number|undefined} [numericMax] - Maximum numeric value
+ * @property {boolean|undefined} [wholeNumber] - Force the number to be whole? (default `false`)
+ * @property {RegExp|string|function(value:string)|undefined} [validator] - Validator regex or function
+ * @property {string[]|function(match):string[]|undefined} [options] - Options to choose from for textual field
  * @property {function(value,part:MaskedInput~Part)|undefined} [postProcess] - Function for post processing a value before retrieving by user
- * @property {Boolean|Number|function(match):(Boolean|Number)|undefined} [padding] - Enable padding in value result (default `true`)
- * @property {Boolean|function(match):Boolean|undefined} [required] - Is the field required (default `true`)
- * @property {String|function(match):String|undefined} [defaultValue] - Default value, used if field is not `required`
- * @property {Boolean|function(match):Boolean|undefined} [forcePlaceholderWidth] - Always consider placeholder's width (default `true`)
+ * @property {boolean|number|function(match):(boolean|number)|undefined} [padding] - Enable padding in value result (default `true`)
+ * @property {boolean|function(match):boolean|undefined} [required] - Is the field required (default `true`)
+ * @property {string|function(match):string|undefined} [defaultValue] - Default value, used if field is not `required`
+ * @property {boolean|function(match):boolean|undefined} [forcePlaceholderWidth] - Always consider placeholder's width (default `true`)
  */
 
 /**
  * @typedef {Object} MaskedInput~Options
- * @property {String} [format] - Format to show
- * @property {Object<String, MaskedInput~Pattern>} [patterns] - Additional patterns to recognize in the format
+ * @property {string} [format] - Format to show
+ * @property {Object<string, MaskedInput~Pattern>} [patterns] - Additional patterns to recognize in the format
  */
 const defaults = /** @type {MaskedInput.Options} */ {
     patterns: {},
@@ -91,7 +91,7 @@ const execRegexWithLeftovers = function (regex, input, onMatch, onLeftover) {
 /**
  * Get the selection range in an element
  * @param {HTMLInputElement} el
- * @returns {{begin: Number, end: Number, direction: 'forward'|'backward'|'none'|undefined}}
+ * @returns {{begin: number, end: number, direction: 'forward'|'backward'|'none'|undefined}}
  */
 const getSelectionRange = function (el) {
     let begin, end, direction = 'none';
@@ -119,8 +119,8 @@ const getSelectionRange = function (el) {
 /**
  * Set the selection range in an element
  * @param {HTMLInputElement} el
- * @param {Number|{begin: Number, end: Number, direction: 'forward'|'backward'|'none'|undefined}} begin
- * @param {Number?} end
+ * @param {number|{begin: number, end: number, direction: 'forward'|'backward'|'none'|undefined}} begin
+ * @param {number?} end
  * @param {('forward'|'backward'|'none')?} direction
  */
 const setSelectionRange = function (el, begin, end, direction) {
@@ -165,12 +165,12 @@ const repeatChar = function (char, length) {
 };
 
 /**
- * @param {String[]} options
- * @param {String} term
- * @param {Boolean?} closestChoice
- * @param {Boolean?} returnFullMatch
- * @param {Boolean?} caseSensitive
- * @returns {String|undefined}
+ * @param {string[]} options
+ * @param {string} term
+ * @param {boolean?} closestChoice
+ * @param {boolean?} returnFullMatch
+ * @param {boolean?} caseSensitive
+ * @returns {string|undefined}
  */
 const findMatchInArray = function (options, term, closestChoice, returnFullMatch, caseSensitive) {
 
@@ -220,7 +220,7 @@ const findMatchInArray = function (options, term, closestChoice, returnFullMatch
 
 /**
  * Regex escape
- * @param {String} str
+ * @param {string} str
  * @returns {XML|void|string}
  */
 const escapeRegExp = function (str) {
@@ -229,7 +229,7 @@ const escapeRegExp = function (str) {
 /**
  * Search for closest element to a specified point
  * @param {HTMLElement[]} elements
- * @param {{left: Number, top: Number }} offset
+ * @param {{left: number, top: number }} offset
  * @returns {HTMLElement|null}
  */
 const closestToOffset = function (elements, offset) {
@@ -300,7 +300,7 @@ const hasComputedStyle = document.defaultView && document.defaultView.getCompute
 /**
  * Gets the precise content width for an element, with fractions
  * @param {Element} el
- * @returns {Number}
+ * @returns {number}
  */
 const getPreciseContentWidth = function (el) {
 
@@ -667,9 +667,9 @@ class MaskedInput {
     /**
      *
      * @private
-     * @param {jQuery|Element|String} input
-     * @param {Boolean=true} alwaysConsiderPlaceholder
-     * @param {String=A} fallbackText
+     * @param {jQuery|Element|string} input
+     * @param {boolean=true} alwaysConsiderPlaceholder
+     * @param {string=A} fallbackText
      * @returns {MaskedInput}
      */
     _syncInputSize(input, alwaysConsiderPlaceholder, fallbackText) {
@@ -1036,8 +1036,8 @@ class MaskedInput {
     /**
      * Determines if we need to skip to next field after input change
      * @private
-     * @param {{begin: Number, end: Number}} newPos
-     * @param {String} newContent
+     * @param {{begin: number, end: number}} newPos
+     * @param {string} newContent
      * @param {MaskedInput~Part} part
      */
     _shouldMoveToNextFieldAfterInput(newPos, newContent, part) {
@@ -1056,9 +1056,9 @@ class MaskedInput {
     /**
      *
      * @private
-     * @param {String} content
+     * @param {string} content
      * @param {MaskedInput~Part} part
-     * @returns {String|Boolean}
+     * @returns {string|boolean}
      */
     _validateContent(content, part) {
 
@@ -1152,7 +1152,7 @@ class MaskedInput {
     /**
      * Retrieve a field element by index or label
      * @public
-     * @param {Number|String} index
+     * @param {number|string} index
      * @returns {HTMLInputElement}
      */
     field(index) {
@@ -1231,9 +1231,9 @@ class MaskedInput {
     /**
      * Retrieve or set an input element's value
      * @private
-     * @param {HTMLInputElement|jQuery|String} input
-     * @param {String?} newValue
-     * @returns {String|MaskedInput|undefined}
+     * @param {HTMLInputElement|jQuery|string} input
+     * @param {string?} newValue
+     * @returns {string|MaskedInput|undefined}
      */
     _fieldValue(input, newValue) {
         const $input = $(input);
@@ -1284,9 +1284,9 @@ class MaskedInput {
     /**
      * Retrieve an input element's value by index or label
      * @public
-     * @param {Number|String} index
-     * @param {String?} newValue
-     * @returns {String|MaskedInput|undefined}
+     * @param {number|string} index
+     * @param {string?} newValue
+     * @returns {string|MaskedInput|undefined}
      */
     fieldValue(index, newValue) {
         const p = this.p;
@@ -1305,7 +1305,7 @@ class MaskedInput {
 
     /**
      * Gets or sets an option by name
-     * @param {String} name
+     * @param {string} name
      * @param {*?} newValue
      * @returns {MaskedInput}
      */
@@ -1333,7 +1333,7 @@ class MaskedInput {
      * Gets or sets a part's option by option name
      * @private
      * @param {MaskedInput~Part} part
-     * @param {String|Object<String, *>} name
+     * @param {string|Object<string, *>} name
      * @param {*?} value
      * @returns {MaskedInput|*}
      */
@@ -1348,7 +1348,7 @@ class MaskedInput {
 
             if (typeof name === 'object') {
                 // Set the options object for part
-                Object.keys(/**@type {Object<String, *>}*/name).forEach(key => {
+                Object.keys(/**@type {Object<string, *>}*/name).forEach(key => {
                     this._fieldOption(part, key, name[key]);
                 });
 
@@ -1403,7 +1403,7 @@ class MaskedInput {
                 // Return value mapping as an object
                 const options = {};
 
-                (/**@type String[]*/name).forEach(key => {
+                (/**@type string[]*/name).forEach(key => {
                     options[key] = part[key];
                 });
 
@@ -1420,8 +1420,8 @@ class MaskedInput {
     /**
      * Gets or sets a part's option by part's index and option name
      * @public
-     * @param {Number|String} index
-     * @param {String|Object} name
+     * @param {number|string} index
+     * @param {string|Object} name
      * @param {*?} value
      * @returns {MaskedInput|*}
      */
@@ -1468,8 +1468,8 @@ class MaskedInput {
     /**
      * Get or set the full value
      * @public
-     * @param {String?} newValue
-     * @returns {String|undefined|MaskedInput}
+     * @param {string?} newValue
+     * @returns {string|undefined|MaskedInput}
      */
     value(newValue) {
         const p = this.p;
@@ -1603,7 +1603,7 @@ class MaskedInput {
 
     /**
      *
-     * @returns {function(string?):(String|MaskedInput|undefined)}
+     * @returns {function(string?):(string|MaskedInput|undefined)}
      */
     get val() {
         return this.value;
@@ -1611,7 +1611,7 @@ class MaskedInput {
 
     /**
      * Set input enabled/disabled mode
-     * @param {Boolean} [enabled=true]
+     * @param {boolean} [enabled=true]
      * @returns {MaskedInput} this
      */
     enable(enabled) {
@@ -1629,7 +1629,7 @@ class MaskedInput {
 
     /**
      * Set input enabled/disabled mode
-     * @param {Boolean} [disabled=true]
+     * @param {boolean} [disabled=true]
      * @returns {MaskedInput} this
      */
     disable(disabled) {
@@ -1639,7 +1639,7 @@ class MaskedInput {
 
     /**
      * @public
-     * @returns {Boolean} <code>true</code> if enabled
+     * @returns {boolean} <code>true</code> if enabled
      */
     get isEnabled() {
         return this.p.enabled;
@@ -1647,7 +1647,7 @@ class MaskedInput {
 
     /**
      * Set input enabled/disabled mode
-     * @param {Boolean} enabled
+     * @param {boolean} enabled
      */
     set isEnabled(enabled) {
         this.enable(enabled);
@@ -1655,7 +1655,7 @@ class MaskedInput {
 
     /**
      * @public
-     * @returns {Boolean} <code>true</code> if disabled
+     * @returns {boolean} <code>true</code> if disabled
      */
     get isDisabled() {
         return !this.p.enabled;
@@ -1663,7 +1663,7 @@ class MaskedInput {
 
     /**
      * Set input enabled/disabled mode
-     * @param {Boolean} disabled
+     * @param {boolean} disabled
      */
     set isDisabled(disabled) {
         this.disable(disabled);

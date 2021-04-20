@@ -9,12 +9,12 @@ import MaskedInput from './jquery.maskedinput.core';
 
 /**
  * @typedef {Object} MaskedInput~DateLocale
- * @property {String[]} [MMM]
- * @property {String[]} [MMMM]
- * @property {String[]} [t]
- * @property {String[]} [tt]
- * @property {String[]} [T]
- * @property {String[]} [TT]
+ * @property {string[]} [MMM]
+ * @property {string[]} [MMMM]
+ * @property {string[]} [t]
+ * @property {string[]} [tt]
+ * @property {string[]} [T]
+ * @property {string[]} [TT]
  */
 
 const repeatChar = function (char, length) {
