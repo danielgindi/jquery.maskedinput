@@ -2,6 +2,8 @@
 
 import $ from 'jquery';
 
+const hasOwnProperty = Object.prototype.hasOwnProperty;
+
 /**
  * @typedef {string} MaskedInput~PartType
  * @name MaskedInput~PartType
@@ -60,6 +62,7 @@ const PartType = {
  * @typedef {Object} MaskedInput~Options
  * @property {string} [format] - Format to show
  * @property {Object<string, MaskedInput~Pattern>} [patterns] - Additional patterns to recognize in the format
+ * @property {Object<string, MaskedInput~Part>} [defaultPartOptions] - Default options for recognized parts in the format
  */
 const defaults = /** @type {MaskedInput.Options} */ {
     patterns: {},
@@ -473,6 +476,11 @@ class MaskedInput {
                 };
                 parsedFormat.push(part);
             }
+			
+			if (part && o.defaultPartOptions && hasOwnProperty(o.defaultPartOptions, part.name)) {
+				let defaults = o.defaultPartOptions[part.name];
+				Object.assign(part, defaults);
+			}
 
         }).bind(this), (function onLeftover(leftover) {
 
