@@ -477,7 +477,7 @@ class MaskedInput {
                 parsedFormat.push(part);
             }
 			
-			if (part && o.defaultPartOptions && hasOwnProperty(o.defaultPartOptions, part.name)) {
+			if (part && o.defaultPartOptions && hasOwnProperty.call(o.defaultPartOptions, part.name)) {
 				let defaults = o.defaultPartOptions[part.name];
 				Object.assign(part, defaults);
 			}
