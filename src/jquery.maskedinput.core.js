@@ -63,9 +63,10 @@ const PartType = {
  * @property {string} [format] - Format to show
  * @property {Object<string, MaskedInput~Pattern>} [patterns] - Additional patterns to recognize in the format
  * @property {Object<string, MaskedInput~Part>} [defaultPartOptions] - Default options for recognized parts in the format
- */
+ * @property {boolean?} [autoSelectOnFocus=false] - Auto select part content on focus */
 const defaults = /** @type {MaskedInput.Options} */ {
     patterns: {},
+    autoSelectOnFocus: false,
 };
 
 const execRegexWithLeftovers = function (regex, input, onMatch, onLeftover) {
@@ -476,7 +477,7 @@ class MaskedInput {
                 };
                 parsedFormat.push(part);
             }
-			
+
 			if (part && o.defaultPartOptions && hasOwnProperty.call(o.defaultPartOptions, part.name)) {
 				let defaults = o.defaultPartOptions[part.name];
 				Object.assign(part, defaults);
@@ -612,7 +613,7 @@ class MaskedInput {
      * @returns {jQuery}
      */
     _renderInput(part, input) {
-        const p = this.p;
+        const p = this.p, o = this.o;
 
         const isNewInput = !input;
 
@@ -621,6 +622,10 @@ class MaskedInput {
         if (isNewInput) {
             $input = $('<input>').data('part', part).prop('disabled', !p.enabled);
             input = $input[0];
+            input.addEventListener('focus', () => {
+                if (o.autoSelectOnFocus)
+                    input.select();
+            });
         } else {
             $input = $(input);
         }
@@ -1643,6 +1648,26 @@ class MaskedInput {
     disable(disabled) {
         disabled = !!disabled || disabled === undefined;
         return this.enable(!disabled);
+    }
+
+    /**
+     * Gets whether focus triggers auto selection or not
+     * @returns {boolean} this
+     */
+    getAutoSelectOnFocus() {
+        const o = this.o;
+        return !!o.autoSelectOnFocus;
+    }
+
+    /**
+     * Sets whether focus triggers auto selection or not
+     * @param {boolean} [value]
+     * @returns {MaskedInput} this
+     */
+    setAutoSelectOnFocus(value) {
+        const o = this.o;
+        o.autoSelectOnFocus = !!value;
+        return this;
     }
 
     /**
