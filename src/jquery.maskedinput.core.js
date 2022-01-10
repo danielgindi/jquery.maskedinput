@@ -61,6 +61,7 @@ const PartType = {
 /**
  * @typedef {Object} MaskedInput~Options
  * @property {Element} [root] - Set a root element to attach to
+ * @property {string} [className='masked-input'] - alternative classname for root element
  * @property {string} [format] - Format to show
  * @property {Object<string, MaskedInput~Pattern>} [patterns] - Additional patterns to recognize in the format
  * @property {Object<string, MaskedInput~Part>} [defaultPartOptions] - Default options for recognized parts in the format
@@ -68,6 +69,7 @@ const PartType = {
 const defaults = /** @type {MaskedInput.Options} */ {
     patterns: {},
     autoSelectOnFocus: false,
+    className: 'masked-input',
 };
 
 const execRegexWithLeftovers = function (regex, input, onMatch, onLeftover) {
@@ -226,7 +228,7 @@ const findMatchInArray = function (options, term, closestChoice, returnFullMatch
 /**
  * Regex escape
  * @param {string} str
- * @returns {XML|void|string}
+ * @returns {string}
  */
 const escapeRegExp = function (str) {
     return str.replace(/[-[\]/{}()*+?.\\$|]/g, '\\$&');
@@ -378,17 +380,19 @@ class MaskedInput {
          * */
         let el = this.el = o.root instanceof $ ? o.root[0] : o.root;
 
-        /** @type $ */
+        /** @type JQuery */
         let $el;
 
         if (!el) {
-            $el = this.$el = $('<div>');
-            el = this.el = $el[0];
+            $el = $('<div>');
+            el = this.el = /**@type Element*/$el[0];
             p.ownsEl = true;
         } else {
             $el = $(el);
             p.ownsEl = false;
         }
+
+        this.$el = $el;
 
         $el.addClass(o.className || 'masked-input');
 
@@ -430,6 +434,7 @@ class MaskedInput {
         return this;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     destroy() {
         const p = this.p;
         const o = this.o;
@@ -1195,6 +1200,7 @@ class MaskedInput {
         return this;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     /**
      * Retrieve a field element by index or label
      * @public
@@ -1327,6 +1333,7 @@ class MaskedInput {
         }
     }
 
+    // noinspection JSUnusedGlobalSymbols
     /**
      * Retrieve an input element's value by index or label
      * @public
@@ -1580,7 +1587,7 @@ class MaskedInput {
                     const minLen = part.maxLength ?
                         Math.max(0, Math.min(part.length || 0, part.maxLength || 0)) :
                         (part.length || 0);
-                    const maxLen = Math.max(part.length || 0, part.maxLength || 0);
+                    //const maxLen = Math.max(part.length || 0, part.maxLength || 0);
 
                     // Try to pad with zeroes where possible
                     if (part.padding || part.padding === undefined) {
@@ -1683,6 +1690,7 @@ class MaskedInput {
         return this.enable(!disabled);
     }
 
+    // noinspection JSUnusedGlobalSymbols
     /**
      * Gets whether focus triggers auto selection or not
      * @returns {boolean} this
@@ -1692,6 +1700,7 @@ class MaskedInput {
         return !!o.autoSelectOnFocus;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     /**
      * Sets whether focus triggers auto selection or not
      * @param {boolean} [value]
@@ -1703,6 +1712,7 @@ class MaskedInput {
         return this;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     /**
      * @public
      * @returns {boolean} <code>true</code> if enabled
@@ -1711,6 +1721,7 @@ class MaskedInput {
         return this.p.enabled;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     /**
      * Set input enabled/disabled mode
      * @param {boolean} enabled
@@ -1719,6 +1730,7 @@ class MaskedInput {
         this.enable(enabled);
     }
 
+    // noinspection JSUnusedGlobalSymbols
     /**
      * @public
      * @returns {boolean} <code>true</code> if disabled
@@ -1727,6 +1739,7 @@ class MaskedInput {
         return !this.p.enabled;
     }
 
+    // noinspection JSUnusedGlobalSymbols
     /**
      * Set input enabled/disabled mode
      * @param {boolean} disabled
