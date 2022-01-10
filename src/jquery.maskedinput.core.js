@@ -60,6 +60,7 @@ const PartType = {
 
 /**
  * @typedef {Object} MaskedInput~Options
+ * @property {Element} [root] - Set a root element to attach to
  * @property {string} [format] - Format to show
  * @property {Object<string, MaskedInput~Pattern>} [patterns] - Additional patterns to recognize in the format
  * @property {Object<string, MaskedInput~Part>} [defaultPartOptions] - Default options for recognized parts in the format
@@ -371,11 +372,25 @@ class MaskedInput {
         p.enabled = true;
         p.inputs = [];
 
-        /** @public */
-        const $el = this.$el = $('<div>').addClass(o.className || 'masked-input');
+        /**
+         * @public
+         * @type Element
+         * */
+        let el = this.el = o.root instanceof $ ? o.root[0] : o.root;
 
-        /** @public */
-        this.el = this.$el[0];
+        /** @type $ */
+        let $el;
+
+        if (!el) {
+            $el = this.$el = $('<div>');
+            el = this.el = $el[0];
+            p.ownsEl = true;
+        } else {
+            $el = $(el);
+            p.ownsEl = false;
+        }
+
+        $el.addClass(o.className || 'masked-input');
 
         // Set control data
         $el
@@ -413,6 +428,24 @@ class MaskedInput {
         }, 0);
 
         return this;
+    }
+
+    destroy() {
+        const p = this.p;
+        const o = this.o;
+
+        if (p.ownsEl) {
+            this.$el.remove();
+        } else {
+            this.$el
+                .empty()
+                .removeData('control')
+                .removeData('maskedinput')
+                .removeClass(o.className || 'masked-input');
+        }
+
+        if (p.$inputBackBuffer)
+            p.$inputBackBuffer.remove();
     }
 
     /**
