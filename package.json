@@ -1,6 +1,6 @@
 {
   "name": "maskedinput.js",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "A jQuery masked input control",
   "main": "dist/jquery.maskedinput.cjs.min.js",
   "module": "dist/jquery.maskedinput.es6.min.js",
