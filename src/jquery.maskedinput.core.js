@@ -373,6 +373,7 @@ class MaskedInput {
 
         p.enabled = true;
         p.inputs = [];
+        p.inputsByKey = Object.create(null);
 
         /**
          * @public
@@ -615,6 +616,7 @@ class MaskedInput {
         this.$el.empty();
 
         const inputs = [];
+        const inputsByKey = Object.create(null);
 
         p.parsed.forEach(part => {
             if (part.type === PartType.LABEL) {
@@ -632,11 +634,12 @@ class MaskedInput {
             inputs.push($input);
 
             if (part.name && parseInt(part.name, 10).toString() !== part.name) {
-                inputs[part.name] = (inputs[part.name] || []).concat(part.el);
+                inputsByKey[part.name] = (inputsByKey[part.name] || []).concat(part.el);
             }
         });
 
         p.inputs = inputs;
+        p.inputsByKey = inputsByKey;
 
         this.resize();
 
@@ -1210,11 +1213,33 @@ class MaskedInput {
     field(index) {
         const p = this.p;
 
-        const input = p.inputs[index];
+        const input = typeof index === 'number' ? p.inputs[index] : p.inputsByKey[index];
 
         if (!input) return undefined;
 
         return $.isArray(input) ? input.slice(0) : input;
+    }
+
+    // noinspection JSUnusedGlobalSymbols
+    /**
+     * Retrieve field count
+     * @public
+     * @returns {number}
+     */
+    get fieldCount() {
+        const p = this.p;
+        return p.inputs.length;
+    }
+
+    // noinspection JSUnusedGlobalSymbols
+    /**
+     * Retrieve field count
+     * @public
+     * @returns {string[]}
+     */
+    get fieldKeys() {
+        const p = this.p;
+        return Object.keys(p.inputsByKey);
     }
 
     /**
@@ -1344,7 +1369,7 @@ class MaskedInput {
     fieldValue(index, newValue) {
         const p = this.p;
 
-        const input = p.inputs[index];
+        const input = typeof index === 'number' ? p.inputs[index] : p.inputsByKey[index];
 
         if (!input) return undefined;
 
@@ -1412,27 +1437,27 @@ class MaskedInput {
 
                 // Remove by the old name
                 if (parseInt(part.name, 10).toString() !== part.name &&
-                    p.inputs[part.name]) {
-                    if (p.inputs[part.name] instanceof HTMLElement) {
-                        delete p.inputs[part.name];
+                    p.inputsByKey[part.name]) {
+                    if (p.inputsByKey[part.name] instanceof HTMLElement) {
+                        delete p.inputsByKey[part.name];
                     } else {
-                        p.inputs[part.name].splice(p.inputs[part.name].indexOf(part), 1);
-                        if (p.inputs[part.name].length === 1) {
-                            p.inputs[part.name] = p.inputs[part.name][0];
+                        p.inputsByKey[part.name].splice(p.inputsByKey[part.name].indexOf(part), 1);
+                        if (p.inputsByKey[part.name].length === 1) {
+                            p.inputsByKey[part.name] = p.inputsByKey[part.name][0];
                         }
                     }
                 }
 
                 // Assign the new name
                 if (value && parseInt(value, 10).toString() !== value) {
-                    if (p.inputs[value]) {
-                        if (p.inputs[value] instanceof HTMLElement) {
-                            p.inputs[value] = [p.inputs[value], part];
+                    if (p.inputsByKey[value]) {
+                        if (p.inputsByKey[value] instanceof HTMLElement) {
+                            p.inputsByKey[value] = [p.inputsByKey[value], part];
                         } else {
-                            p.inputs[value] = part;
+                            p.inputsByKey[value] = part;
                         }
                     } else {
-                        p.inputs[value] = part;
+                        p.inputsByKey[value] = part;
                     }
                 }
             }
@@ -1482,14 +1507,14 @@ class MaskedInput {
         const that = this,
             p = this.p;
 
-        const inputEls = p.inputs[index];
-        if (!inputEls) return this;
+        const input = typeof index === 'number' ? p.inputs[index] : p.inputsByKey[index];
+        if (!input) return this;
 
-        if (inputEls.length > 1) {
+        if (input.length > 1) {
             if (arguments.length === 3 || typeof (name) === 'object') {
 
                 // Set the option/options for all inputs
-                inputEls.forEach(el => {
+                input.forEach(el => {
                     that._fieldOption($(el).data('part'), name, value);
                 });
 
@@ -1499,13 +1524,13 @@ class MaskedInput {
             } else {
 
                 // Return array of option/options for all inputs
-                return inputEls.map(el => that._fieldOption($(el).data('part'), name));
+                return input.map(el => that._fieldOption($(el).data('part'), name));
             }
         } else {
             if (arguments.length === 3) {
 
                 // Set the option/options for input
-                this._fieldOption($(inputEls).data('part'), name, value);
+                this._fieldOption($(input).data('part'), name, value);
 
                 delete p.valueRegex;
 
@@ -1513,7 +1538,7 @@ class MaskedInput {
             } else {
 
                 // Return value/values
-                return this._fieldOption($(inputEls).data('part'), name);
+                return this._fieldOption($(input).data('part'), name);
             }
         }
     }
